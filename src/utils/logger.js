@@ -1,5 +1,8 @@
 import path from 'path';
 import { format, transports, createLogger } from 'winston';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const { combine, timestamp, errors, splat, json, simple, colorize, prettyPrint } = format;
 
@@ -11,7 +14,6 @@ const logFormat = combine(
   json(),
   prettyPrint()
 );
-
 
 // Create logger
 const logger = createLogger({
