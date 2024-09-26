@@ -1,11 +1,12 @@
 import express from 'express';
 import sequelize from './config/database.js';
+import logger from './utils/logger.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  logger.info(`Server running on port ${PORT}`);
 });
 
 sequelize.sync()
