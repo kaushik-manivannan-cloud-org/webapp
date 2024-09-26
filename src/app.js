@@ -13,4 +13,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 registerRoutes(app);
 
+process.on("uncaughtException", (err) => {
+  logger.error("Uncaught Exception", { error: err });
+});
+
+process.on("unhandledRejection", (err) => {
+  logger.error("Unhandled Rejection", { error: err });
+});
 
