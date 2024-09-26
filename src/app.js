@@ -1,5 +1,5 @@
 import express from 'express';
-import sequelize from './config/database.js';
+import registerRoutes from './routes/index.js';
 import logger from './utils/logger.js';
 
 const app = express();
@@ -9,12 +9,8 @@ app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`);
 });
 
-sequelize.sync()
-  .then(() => console.log('Database synced'))
-  .catch((err) => console.error('Error syncing database:', err));
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true }));
+registerRoutes(app);
 
-// Test the Database Connection
-sequelize.authenticate()
-  .then(() => console.log('Connection has been established successfully.'))
-  .catch((error) => console.error('Unable to connect to the database:', error));
 
