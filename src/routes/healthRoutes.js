@@ -3,11 +3,15 @@ import logger from '../utils/logger.js';
 import { checkHealth } from '../controllers/healthController.js';
 import { checkNoPayload } from '../middleware/checkNoPayload.js';
 import noCache from '../middleware/noCache.js';
+import { methodNotAllowed } from '../middleware/methodNotAllowed.js';
 
 const router = express.Router();
 
 router.route('/')
   .all(
+    methodNotAllowed(['GET'])
+  )
+  .get(
     checkNoPayload,
     noCache,
     (req, res, next) => {
