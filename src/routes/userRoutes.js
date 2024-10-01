@@ -4,6 +4,7 @@ import { methodNotAllowed } from '../middleware/methodNotAllowed.js';
 import { createUser, getUser, updateUser } from '../controllers/userController.js';
 import { validatePayload } from '../middleware/validatePayload.js';
 import { createUserSchema, updateUserSchema } from '../schemas/userSchemas.js';
+import auth from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -28,7 +29,8 @@ router.route('/self')
     (req, res, next) => {
       logger.info("Fetch user request received");
       next();
-      },
+    },
+    auth,
     getUser
   )
   .put(
@@ -37,6 +39,7 @@ router.route('/self')
       next();
       },
     validatePayload(updateUserSchema),
+    auth,
     updateUser
   )
 
