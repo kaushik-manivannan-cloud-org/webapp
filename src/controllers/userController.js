@@ -1,5 +1,22 @@
+import * as userService from "../services/userService.js";
+import logger from "../utils/logger.js";
+
 export const createUser = async (req, res) => {
-  return res.status(201).send();
+  try {
+    const user = await userService.createUser(req.body);
+    res.status(201).send();
+  } catch (error) {
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      logger.warn("Attempt to create user with existing email", { email: req.body.email });
+      return res.status(400).send();
+    }
+    if (error.name === 'SequelizeValidationError') {
+      logger.warn("Validation error when creating user:", { error: error.message });
+      return res.status(400).send();
+    }
+    logger.error("Error creating user", { error: error.message });
+    res.status(500).send();
+  }
 }
 
 export const getUser = async (req, res) => {
