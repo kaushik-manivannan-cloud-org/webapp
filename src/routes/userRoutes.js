@@ -3,6 +3,7 @@ import logger from '../utils/logger.js';
 import { methodNotAllowed } from '../middleware/methodNotAllowed.js';
 import { createUser, getUser, updateUser } from '../controllers/userController.js';
 import { validatePayload } from '../middleware/validatePayload.js';
+import { checkNoPayload } from '../middleware/checkNoPayload.js';
 import { createUserSchema, updateUserSchema } from '../schemas/userSchemas.js';
 import auth from '../middleware/auth.js';
 
@@ -30,6 +31,7 @@ router.route('/self')
       logger.info("Fetch user request received");
       next();
     },
+    checkNoPayload,
     auth,
     getUser
   )
