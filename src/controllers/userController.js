@@ -27,7 +27,24 @@ export const createUser = async (req, res) => {
 }
 
 export const getUser = async (req, res) => {
-  return res.status(200).send();
+  try {
+    const user = await userService.getUser(req.auth.user);
+    return res.status(200).json({
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      account_created: user.account_created,
+      account_updated: user.account_updated,
+    });
+  } catch (error) {
+    logger.error('Error fetching user', { error: error.message });
+    if (error.message === 'User not found') {
+      logger.error('User not found');
+      return res.status(404).send();
+    }
+    res.status(500).send();
+  }
 }
 
 export const updateUser = async (req, res) => {
