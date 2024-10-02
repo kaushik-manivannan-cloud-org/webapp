@@ -4,7 +4,14 @@ import logger from "../utils/logger.js";
 export const createUser = async (req, res) => {
   try {
     const user = await userService.createUser(req.body);
-    res.status(201).send();
+    res.status(201).json({
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      account_created: user.account_created,
+      account_updated: user.account_updated,
+    });;
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
       logger.warn("Attempt to create user with existing email", { email: req.body.email });
