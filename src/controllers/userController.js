@@ -11,7 +11,7 @@ export const createUser = async (req, res) => {
       email: user.email,
       account_created: user.account_created,
       account_updated: user.account_updated,
-    });;
+    });
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
       logger.warn("Attempt to create user with existing email", { email: req.body.email });
@@ -49,13 +49,7 @@ export const getUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
-    const updateData = ['first_name', 'last_name', 'password']
-      .reduce((acc, field) => {
-        if (field in req.body) acc[field] = req.body[field];
-        return acc;
-      }, {})
-    
-    const user = await userService.updateUser(req.auth.user, updateData);
+    const user = await userService.updateUser(req.auth.user, req.body);
     return res.status(204).json({
       id: user.id,
       first_name: user.first_name,
