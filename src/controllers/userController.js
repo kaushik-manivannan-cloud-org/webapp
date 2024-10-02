@@ -48,5 +48,32 @@ export const getUser = async (req, res) => {
 }
 
 export const updateUser = async (req, res) => {
-  return res.status(204).send();
+  try {
+    const updateData = ['first_name', 'last_name', 'password']
+      .reduce((acc, field) => {
+        if (field in req.body) acc[field] = req.body[field];
+        return acc;
+      }, {})
+    
+    const user = await userService.updateUser(req.auth.user, updateData);
+    return res.status(204).json({
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      account_created: user.account_created,
+      account_updated: user.account_updated
+    });
+  } catch (error) {
+    logger.error("Error updating user", { error: error.message });
+    if (error.message === 'User not found') {
+      logger.error('User not found');
+      return res.status(404).send();
+    }
+    if (error.name === 'SequelizeValidationError') {
+      logger.warn("Validation error when creating user:", { error: error.message });
+      return res.status(400).send();
+    }
+    res.status(500).send();
+  }
 }
