@@ -13,7 +13,6 @@ router.route('/')
   )
   .get(
     checkNoPayload,
-    noCache,
     (req, res, next) => {
     logger.info("Health check request received");
     next();
