@@ -17,8 +17,6 @@ app.use(pageNotFound);
 const startServer = async () => {
   try {
     const sequelize = await initDatabase();
-    
-    const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
       logger.info(`Server is running on port ${PORT}`);
     });

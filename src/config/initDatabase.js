@@ -11,23 +11,28 @@ const { DB_HOST, DB_PORT } = process.env;
 const DB_NAME = process.env.DB_NAME;
 const DB_USER = process.env.DB_USER;
 const DB_PASSWORD = process.env.DB_PASSWORD;
-const NODE_ENV = process.env.NODE_ENV
+const NODE_ENV = process.env.NODE_ENV;
+const POSTGRES_ADMIN_USER = process.env.POSTGRES_ADMIN_USER || (NODE_ENV === 'development' ? 'kaushik' : 'postgres');
 
 async function createClient(database) {
-  return new pg.Client({
+  const client = new pg.Client({
     host: DB_HOST,
     port: DB_PORT,
-    user: NODE_ENV === 'development'? 'kaushik' : 'postgres',
+    user: POSTGRES_ADMIN_USER,
     database: database
   });
+
+  logger.debug(`Attempting to connect to PostgreSQL as ${POSTGRES_ADMIN_USER}`);
+  return client;
 }
 
 async function initDatabase() {
-  let adminClient = await createClient('postgres');
+  let adminClient;
 
   try {
+    adminClient = await createClient('postgres');
     await adminClient.connect();
-    logger.info('Connected to PostgreSQL as postgres user');
+    logger.info(`Connected to PostgreSQL as ${POSTGRES_ADMIN_USER}`);
 
     // Check if the database exists
     const dbExists = await adminClient.query(`
@@ -48,11 +53,12 @@ async function initDatabase() {
       logger.info(`Creating user ${DB_USER}`);
       await adminClient.query(`CREATE USER ${DB_USER} WITH PASSWORD '${DB_PASSWORD}'`);
     } else {
-      // Update user's password
+      logger.info(`Updating password for user ${DB_USER}`);
       await adminClient.query(`ALTER USER ${DB_USER} WITH PASSWORD '${DB_PASSWORD}'`);
     }
 
     // Grant privileges
+    logger.info(`Granting privileges on ${DB_NAME} to ${DB_USER}`);
     await adminClient.query(`GRANT ALL PRIVILEGES ON DATABASE ${DB_NAME} TO ${DB_USER}`);
     
     // Close the connection to 'postgres' database
@@ -63,6 +69,7 @@ async function initDatabase() {
     await adminClient.connect();
 
     // Grant schema privileges
+    logger.info(`Granting schema privileges to ${DB_USER}`);
     await adminClient.query(`GRANT ALL PRIVILEGES ON SCHEMA public TO ${DB_USER}`);
     await adminClient.query(`ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO ${DB_USER}`);
     await adminClient.query(`ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO ${DB_USER}`);
