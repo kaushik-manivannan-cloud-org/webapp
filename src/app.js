@@ -1,23 +1,31 @@
 import express from 'express';
 import registerRoutes from './routes/index.js';
 import logger from './utils/logger.js';
+import { pageNotFound } from './middleware/pageNotFound.js';
+import noCache from './middleware/noCache.js';
+import initDatabase from './config/initDatabase.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-});
-
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
+app.use(noCache);
 registerRoutes(app);
+app.use(pageNotFound);
 
-process.on("uncaughtException", (err) => {
-  logger.error("Uncaught Exception", { error: err });
-});
+const startServer = async () => {
+  try {
+    const sequelize = await initDatabase();
+    app.listen(PORT, () => {
+      logger.info(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    logger.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
 
-process.on("unhandledRejection", (err) => {
-  logger.error("Unhandled Rejection", { error: err });
-});
+startServer();
 
+export default app;
