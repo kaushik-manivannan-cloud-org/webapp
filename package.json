@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
+  "type": "module",
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "test": "jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --detectOpenHandles"
   },
   "author": "Kaushik Manivannan",
   "license": "ISC",
@@ -22,8 +23,10 @@
     "winston": "^3.14.2"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
     "nodemon": "^3.1.7",
-    "sequelize-cli": "^6.6.2"
-  },
-  "type": "module"
+    "sequelize-cli": "^6.6.2",
+    "sequelize-test-helpers": "^1.4.3",
+    "supertest": "^7.0.0"
+  }
 }
