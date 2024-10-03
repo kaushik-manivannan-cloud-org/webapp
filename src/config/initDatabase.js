@@ -11,12 +11,13 @@ const { DB_HOST, DB_PORT } = process.env;
 const DB_NAME = process.env.DB_NAME;
 const DB_USER = process.env.DB_USER;
 const DB_PASSWORD = process.env.DB_PASSWORD;
+const NODE_ENV = process.env.NODE_ENV
 
 async function createClient(database) {
   return new pg.Client({
     host: DB_HOST,
     port: DB_PORT,
-    user: 'kaushik',
+    user: NODE_ENV === 'development'? 'kaushik' : 'postgres',
     database: database
   });
 }
