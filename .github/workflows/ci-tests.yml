@@ -1,30 +1,31 @@
 name: Run Application Tests
 
 on:
+  push:
+    branches:
+      - '*'
   pull_request:
     branches:
       - main
 
 jobs:
-  run-tests:
+  test:
     name: Run Jest Tests
     runs-on: ubuntu-latest
 
     services:
-      db:
+      postgres:
         image: postgres:13
         ports:
           - 5432:5432
         env:
-          POSTGRES_DB: ${{ secrets.DB_NAME }}
-          POSTGRES_USER: ${{ secrets.DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
         options: >-
-          --health-cmd="pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" 
-          --health-interval=10s 
-          --health-timeout=5s 
-          --health-retries=5
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
 
     steps:
     - name: Checkout code
@@ -36,49 +37,38 @@ jobs:
         node-version: '22'
 
     - name: Install Dependencies
-      run: npm install
-
-    - name: Set postgres user password
-      run: |
-        PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h localhost -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -c "ALTER USER postgres WITH PASSWORD 'postgres';"
-
-    - name: Update pg_hba.conf
-      run: |
-        echo "local all postgres md5" > pg_hba.conf
-        echo "host all postgres all md5" >> pg_hba.conf
-        echo "local all all trust" >> pg_hba.conf
-        echo "host all all all trust" >> pg_hba.conf
-        sudo docker cp pg_hba.conf $(docker ps -q --filter name=db):/var/lib/postgresql/data/pg_hba.conf
-        sudo docker exec $(docker ps -q --filter name=db) chown postgres:postgres /var/lib/postgresql/data/pg_hba.conf
-        sudo docker exec $(docker ps -q --filter name=db) chmod 600 /var/lib/postgresql/data/pg_hba.conf
-
-    - name: Restart PostgreSQL
-      run: sudo docker restart $(docker ps -q --filter name=db)
+      working-directory: ./backend
+      run: npm i
 
     - name: Wait for PostgreSQL to be ready
       run: |
-        until docker exec $(docker ps -q --filter name=db) pg_isready -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }}; do
-          echo "Waiting for PostgreSQL to be ready..."
-          sleep 1
+        until PGPASSWORD=postgres psql -h localhost -U postgres -c '\q'; do
+          echo "Waiting for PostgreSQL..."
+          sleep 2
         done
 
     - name: Run Database Initialization Script
+      working-directory: ./backend
       run: |
         node -r dotenv/config src/config/initDatabase.js
       env:
         DB_HOST: localhost
         DB_PORT: 5432
         DB_NAME: ${{ secrets.DB_NAME }}
-        DB_USER: postgres
-        DB_PASSWORD: postgres
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         POSTGRES_ADMIN_USER: postgres
         POSTGRES_ADMIN_PASSWORD: postgres
+        NODE_ENV: test
 
     - name: Run Tests
+      working-directory: ./backend
       env:
+        PORT: ${{ secrets.DB_PORT }}
         DB_HOST: localhost
         DB_PORT: 5432
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        NODE_ENV: test
       run: npm test
