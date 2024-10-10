@@ -2,28 +2,27 @@ name: Run Application Tests
 
 on:
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  run-tests:
+  test:
     name: Run Jest Tests
     runs-on: ubuntu-latest
 
     services:
-      db:
+      postgres:
         image: postgres:13
         ports:
           - 5432:5432
         env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_ADMIN_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
           POSTGRES_DB: ${{ secrets.DB_NAME }}
-          POSTGRES_USER: ${{ secrets.DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
         options: >-
-          --health-cmd="pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" 
-          --health-interval=10s 
-          --health-timeout=5s 
-          --health-retries=5
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
 
     steps:
     - name: Checkout code
@@ -35,17 +34,35 @@ jobs:
         node-version: '22'
 
     - name: Install Dependencies
-      run: npm install
-
-    - name: Run Database Initialization Script
+      run: npm i
+    
+    - name: Wait for PostgreSQL to be ready
       run: |
-        node -r dotenv/config src/db/initDatabase.js
+        until PGPASSWORD=${{ secrets.POSTGRES_ADMIN_PASSWORD }} psql -h localhost -U ${{ secrets.POSTGRES_ADMIN_USER }} -d ${{ secrets.DB_NAME }} -c '\q'; do
+          echo "Waiting for PostgreSQL to be ready..."
+          sleep 2
+        done
+
+    - name: Run database initialization
+      run: node -r dotenv/config src/config/initDatabase.js
+      env:
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_PORT: ${{ secrets.DB_PORT }}
+        DB_USER: ${{ secrets.POSTGRES_ADMIN_USER }}
+        DB_PASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
+        PGUSER: ${{ secrets.POSTGRES_ADMIN_USER }}
+        PGPASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
+        PGDATABASE: ${{ secrets.DB_NAME }}
 
     - name: Run Tests
       env:
+        PORT: ${{ secrets.PORT }}
         DB_HOST: ${{ secrets.DB_HOST }}
         DB_PORT: ${{ secrets.DB_PORT }}
         DB_NAME: ${{ secrets.DB_NAME }}
-        DB_USER: ${{ secrets.DB_USER }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      run: npm test
+        DB_USER: ${{ secrets.POSTGRES_ADMIN_USER }}
+        DB_PASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
+        PGUSER: ${{ secrets.POSTGRES_ADMIN_USER }}
+        PGPASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
+      run: npm test -- --testTimeout=5000 --forceExit
