@@ -11,21 +11,19 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      db:
+      postgres:
         image: postgres:13
-        ports:
-          - 5432:5432
         env:
           POSTGRES_DB: ${{ secrets.DB_NAME }}
           POSTGRES_USER: ${{ secrets.DB_USER }}
           POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
         options: >-
-          --health-cmd="pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" 
-          --health-interval=10s 
-          --health-timeout=5s 
-          --health-retries=5
-        volumes:
-          - ./pg_hba.conf:/etc/postgresql/postgresql.conf.sample
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
     steps:
     - name: Checkout code
@@ -37,17 +35,36 @@ jobs:
         node-version: '22'
 
     - name: Install Dependencies
-      run: npm install
+      run: npm i
+
+    - name: Set up environment variables
+      run: |
+        echo "DB_HOST=localhost" >> $GITHUB_ENV
+        echo "DB_PORT=5432" >> $GITHUB_ENV
+        echo "DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
+        echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
+        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+        echo "NODE_ENV=test" >> $GITHUB_ENV
+        echo "POSTGRES_ADMIN_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
 
     - name: Run Database Initialization Script
       run: |
         node -r dotenv/config src/config/initDatabase.js
-
-    - name: Run Tests
       env:
-        DB_HOST: ${{ secrets.DB_HOST }}
-        DB_PORT: ${{ secrets.DB_PORT }}
+        DB_HOST: localhost
+        DB_PORT: 5432
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        NODE_ENV: test
+        POSTGRES_ADMIN_USER: ${{ secrets.DB_USER }}
+
+    - name: Run Tests
       run: npm test
+      env:
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        NODE_ENV: test
