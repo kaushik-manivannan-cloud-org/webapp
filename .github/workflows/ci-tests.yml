@@ -10,14 +10,23 @@ jobs:
     name: Run Jest Tests
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
-    - name: Create pg_hba.conf
-      run: |
-        echo "local all all trust" > pg_hba.conf
-        echo "host all all 0.0.0.0/0 trust" >> pg_hba.conf
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
@@ -27,64 +36,35 @@ jobs:
     - name: Install Dependencies
       run: npm i
 
-    - name: Create Docker network
-      run: docker network create app_network
-
-    - name: Start PostgreSQL
+    - name: Modify PostgreSQL permissions
       run: |
-        docker run -d \
-          --name postgres \
-          --network app_network \
-          -e POSTGRES_DB=${{ secrets.DB_NAME }} \
-          -e POSTGRES_USER=${{ secrets.DB_USER }} \
-          -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
-          -v ${{ github.workspace }}/pg_hba.conf:/etc/postgresql/pg_hba.conf \
-          -p 5432:5432 \
-          postgres:13 \
-          -c 'hba_file=/etc/postgresql/pg_hba.conf'
+        sudo -u postgres psql -c "ALTER USER postgres WITH SUPERUSER;"
+        echo "host all postgres all trust" | sudo tee -a /etc/postgresql/13/main/pg_hba.conf
+        sudo systemctl restart postgresql
 
     - name: Wait for PostgreSQL to be ready
       run: |
-        while ! docker exec postgres pg_isready -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }}; do
+        until PGPASSWORD=postgres psql -h localhost -U postgres -c "SELECT 1" > /dev/null 2>&1; do
+          echo "Waiting for PostgreSQL to be ready..."
           sleep 1
         done
 
-    - name: Debug - Check PostgreSQL logs
-      run: docker logs postgres
-
-    - name: Debug - List PostgreSQL users
-      run: |
-        docker exec postgres psql -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -c "\du"
-
-    - name: Debug - Check pg_hba.conf
-      run: |
-        docker exec postgres cat /etc/postgresql/pg_hba.conf
-
     - name: Run Database Initialization Script
       run: |
-        docker run --rm \
-          --network app_network \
-          -v ${{ github.workspace }}:/app \
-          -w /app \
-          -e DB_HOST=postgres \
-          -e DB_PORT=5432 \
-          -e DB_NAME=${{ secrets.DB_NAME }} \
-          -e DB_USER=${{ secrets.DB_USER }} \
-          -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-          -e POSTGRES_ADMIN_USER=${{ secrets.DB_USER }} \
-          node:22 \
-          node -r dotenv/config src/config/initDatabase.js
+        node -r dotenv/config src/config/initDatabase.js
+      env:
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+        POSTGRES_ADMIN_USER: postgres
 
     - name: Run Tests
-      run: |
-        docker run --rm \
-          --network app_network \
-          -v ${{ github.workspace }}:/app \
-          -w /app \
-          -e DB_HOST=postgres \
-          -e DB_PORT=5432 \
-          -e DB_NAME=${{ secrets.DB_NAME }} \
-          -e DB_USER=${{ secrets.DB_USER }} \
-          -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-          node:22 \
-          npm test
+      run: npm test
+      env:
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
