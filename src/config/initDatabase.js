@@ -12,6 +12,7 @@ const DB_NAME = process.env.DB_NAME;
 const DB_USER = process.env.DB_USER;
 const DB_PASSWORD = process.env.DB_PASSWORD;
 const POSTGRES_ADMIN_USER = process.env.POSTGRES_ADMIN_USER;
+const POSTGRES_ADMIN_PASSWORD = process.env.POSTGRES_ADMIN_PASSWORD;
 
 async function createClient(database) {
   const client = new pg.Client({
