@@ -65,7 +65,4 @@ jobs:
         DB_PASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
         PGUSER: ${{ secrets.POSTGRES_ADMIN_USER }}
         PGPASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
-      run: npm test -- --testTimeout=5000
-    
-    - name: Confirm tests passed
-      run: echo "All tests passed successfully!"
+      run: npm test -- --testTimeout=5000 --forceExit
