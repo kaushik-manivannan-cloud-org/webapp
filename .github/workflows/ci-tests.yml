@@ -17,9 +17,7 @@ jobs:
     - name: Create pg_hba.conf
       run: |
         echo "local all all trust" > pg_hba.conf
-        echo "host all all 127.0.0.1/32 trust" >> pg_hba.conf
-        echo "host all all ::1/128 trust" >> pg_hba.conf
-        echo "host all all 172.17.0.0/16 trust" >> pg_hba.conf
+        echo "host all all 0.0.0.0/0 trust" >> pg_hba.conf
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
@@ -50,6 +48,17 @@ jobs:
         while ! docker exec postgres pg_isready -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }}; do
           sleep 1
         done
+
+    - name: Debug - Check PostgreSQL logs
+      run: docker logs postgres
+
+    - name: Debug - List PostgreSQL users
+      run: |
+        docker exec postgres psql -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -c "\du"
+
+    - name: Debug - Check pg_hba.conf
+      run: |
+        docker exec postgres cat /etc/postgresql/pg_hba.conf
 
     - name: Run Database Initialization Script
       run: |
