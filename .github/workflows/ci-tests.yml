@@ -65,4 +65,4 @@ jobs:
         DB_PASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
         PGUSER: ${{ secrets.POSTGRES_ADMIN_USER }}
         PGPASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
-      run: npm test --forceExit --maxWorkers=2 --runInBand
+      run: npm test
