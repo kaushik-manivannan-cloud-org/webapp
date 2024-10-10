@@ -51,6 +51,9 @@ jobs:
         DB_PORT: ${{ secrets.DB_PORT }}
         DB_USER: ${{ secrets.POSTGRES_ADMIN_USER }}
         DB_PASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
+        PGUSER: ${{ secrets.POSTGRES_ADMIN_USER }}
+        PGPASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
+        PGDATABASE: ${{ secrets.DB_NAME }}
 
     - name: Run Tests
       env:
@@ -60,4 +63,6 @@ jobs:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.POSTGRES_ADMIN_USER }}
         DB_PASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
+        PGUSER: ${{ secrets.POSTGRES_ADMIN_USER }}
+        PGPASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
       run: npm test
