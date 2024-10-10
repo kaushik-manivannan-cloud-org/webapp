@@ -1,6 +1,6 @@
 # Health Check API Project
 
-This project implements a health check API for a web application, providing a way to monitor the health of the application and its database connection.
+This project implements a health check API for a web application, providing a way to monitor the health of the app and its database connection.
 
 ## Prerequisites
 
