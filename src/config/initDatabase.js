@@ -4,7 +4,6 @@ import pg from 'pg';
 import dotenv from 'dotenv';
 import logger from '../utils/logger.js';
 import User from '../models/user.js';
-import { password } from 'pg/lib/defaults.js';
 
 dotenv.config();
 
