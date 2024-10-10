@@ -19,6 +19,7 @@ jobs:
         echo "local all all trust" > pg_hba.conf
         echo "host all all 127.0.0.1/32 trust" >> pg_hba.conf
         echo "host all all ::1/128 trust" >> pg_hba.conf
+        echo "host all all 172.17.0.0/16 trust" >> pg_hba.conf
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
