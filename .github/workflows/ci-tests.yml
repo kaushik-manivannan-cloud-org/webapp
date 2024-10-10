@@ -50,7 +50,7 @@ jobs:
     
     - name: Wait for database to be fully ready
       run: |
-        until PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h localhost -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -c '\q'; do
+        until PGPASSWORD=${{ secrets.POSTGRES_ADMIN_PASSWORD }} psql -h localhost -U ${{ secrets.POSTGRES_ADMIN_USER }} -d ${{ secrets.DB_NAME }} -c '\q'; do
           echo "Waiting for PostgreSQL to be ready..."
           sleep 2
         done
