@@ -11,7 +11,6 @@ const { DB_HOST, DB_PORT } = process.env;
 const DB_NAME = process.env.DB_NAME;
 const DB_USER = process.env.DB_USER;
 const DB_PASSWORD = process.env.DB_PASSWORD;
-const NODE_ENV = process.env.NODE_ENV;
 const POSTGRES_ADMIN_USER = process.env.POSTGRES_ADMIN_USER;
 
 async function createClient(database) {
