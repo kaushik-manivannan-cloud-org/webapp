@@ -27,12 +27,16 @@ jobs:
         node-version: '22'
 
     - name: Install Dependencies
-      run: npm ci
+      run: npm i
+
+    - name: Create Docker network
+      run: docker network create app_network
 
     - name: Start PostgreSQL
       run: |
         docker run -d \
           --name postgres \
+          --network app_network \
           -e POSTGRES_DB=${{ secrets.DB_NAME }} \
           -e POSTGRES_USER=${{ secrets.DB_USER }} \
           -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
@@ -49,20 +53,29 @@ jobs:
 
     - name: Run Database Initialization Script
       run: |
-        node -r dotenv/config src/config/initDatabase.js
-      env:
-        DB_HOST: localhost
-        DB_PORT: 5432
-        DB_NAME: ${{ secrets.DB_NAME }}
-        DB_USER: ${{ secrets.DB_USER }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        POSTGRES_ADMIN_USER: ${{ secrets.DB_USER }}
+        docker run --rm \
+          --network app_network \
+          -v ${{ github.workspace }}:/app \
+          -w /app \
+          -e DB_HOST=postgres \
+          -e DB_PORT=5432 \
+          -e DB_NAME=${{ secrets.DB_NAME }} \
+          -e DB_USER=${{ secrets.DB_USER }} \
+          -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+          -e POSTGRES_ADMIN_USER=${{ secrets.DB_USER }} \
+          node:22 \
+          node -r dotenv/config src/config/initDatabase.js
 
     - name: Run Tests
-      env:
-        DB_HOST: localhost
-        DB_PORT: 5432
-        DB_NAME: ${{ secrets.DB_NAME }}
-        DB_USER: ${{ secrets.DB_USER }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      run: npm test
+      run: |
+        docker run --rm \
+          --network app_network \
+          -v ${{ github.workspace }}:/app \
+          -w /app \
+          -e DB_HOST=postgres \
+          -e DB_PORT=5432 \
+          -e DB_NAME=${{ secrets.DB_NAME }} \
+          -e DB_USER=${{ secrets.DB_USER }} \
+          -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+          node:22 \
+          npm test
