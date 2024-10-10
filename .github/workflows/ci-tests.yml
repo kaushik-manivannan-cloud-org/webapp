@@ -14,9 +14,7 @@ jobs:
       postgres:
         image: postgres:13
         env:
-          POSTGRES_DB: ${{ secrets.DB_NAME }}
-          POSTGRES_USER: ${{ secrets.DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_PASSWORD: postgres
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -32,10 +30,17 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: '20'
 
     - name: Install Dependencies
-      run: npm i
+      run: npm ci
+
+    - name: Set up database
+      run: |
+        PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE ${{ secrets.DB_NAME }};"
+        PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE USER ${{ secrets.DB_USER }} WITH PASSWORD '${{ secrets.DB_PASSWORD }}';"
+        PGPASSWORD=postgres psql -h localhost -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE ${{ secrets.DB_NAME }} TO ${{ secrets.DB_USER }};"
+        PGPASSWORD=postgres psql -h localhost -U postgres -d ${{ secrets.DB_NAME }} -c "GRANT ALL PRIVILEGES ON SCHEMA public TO ${{ secrets.DB_USER }};"
 
     - name: Set up environment variables
       run: |
@@ -45,7 +50,7 @@ jobs:
         echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
         echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
         echo "NODE_ENV=test" >> $GITHUB_ENV
-        echo "POSTGRES_ADMIN_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
+        echo "POSTGRES_ADMIN_USER=postgres" >> $GITHUB_ENV
 
     - name: Run Database Initialization Script
       run: |
@@ -57,7 +62,7 @@ jobs:
         DB_USER: ${{ secrets.DB_USER }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         NODE_ENV: test
-        POSTGRES_ADMIN_USER: ${{ secrets.DB_USER }}
+        POSTGRES_ADMIN_USER: postgres
 
     - name: Run Tests
       run: npm test
