@@ -39,7 +39,7 @@ jobs:
 
     - name: Run Database Initialization Script
       run: |
-        node -r dotenv/config src/db/initDatabase.js
+        node -r dotenv/config src/config/initDatabase.js
 
     - name: Run Tests
       env:
