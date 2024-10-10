@@ -37,7 +37,6 @@ jobs:
         node-version: '22'
 
     - name: Install Dependencies
-      working-directory: ./backend
       run: npm i
 
     - name: Wait for PostgreSQL to be ready
@@ -48,7 +47,6 @@ jobs:
         done
 
     - name: Run Database Initialization Script
-      working-directory: ./backend
       run: |
         node -r dotenv/config src/config/initDatabase.js
       env:
@@ -62,7 +60,6 @@ jobs:
         NODE_ENV: test
 
     - name: Run Tests
-      working-directory: ./backend
       env:
         PORT: ${{ secrets.DB_PORT }}
         DB_HOST: localhost
