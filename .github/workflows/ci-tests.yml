@@ -34,6 +34,13 @@ jobs:
 
     - name: Install Dependencies
       run: npm i
+    
+    - name: Wait for PostgreSQL to be ready
+      run: |
+        until PGPASSWORD=${{ secrets.POSTGRES_ADMIN_PASSWORD }} psql -h localhost -U ${{ secrets.POSTGRES_ADMIN_USER }} -c '\q'; do
+          echo "Waiting for PostgreSQL to be ready..."
+          sleep 2
+        done
 
     - name: Run database initialization
       run: node -r dotenv/config src/config/initDatabase.js
@@ -48,16 +55,23 @@ jobs:
         PGUSER: ${{ secrets.POSTGRES_ADMIN_USER }}
         PGPASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
     
-    - name: Wait for database to be fully ready
+    - name: Verify application user connection
       run: |
-        until PGPASSWORD=${{ secrets.POSTGRES_ADMIN_PASSWORD }} psql -h localhost -U ${{ secrets.POSTGRES_ADMIN_USER }} -d ${{ secrets.DB_NAME }} -c '\q'; do
-          echo "Waiting for PostgreSQL to be ready..."
+        max_retries=5
+        retry_count=0
+        until PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h localhost -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -c '\q'; do
+          echo "Waiting for application user connection to be ready..."
           sleep 2
+          retry_count=$((retry_count+1))
+          if [ $retry_count -ge $max_retries ]; then
+            echo "Failed to connect with application user after $max_retries attempts."
+            exit 1
+          fi
         done
 
     - name: Run Tests
       env:
-        PORT: 3000
+        PORT: ${{ secrets.PORT }}
         DB_HOST: ${{ secrets.DB_HOST }}
         DB_PORT: ${{ secrets.DB_PORT }}
         DB_NAME: ${{ secrets.DB_NAME }}
