@@ -1,31 +1,18 @@
 import { jest } from '@jest/globals';
 import request from 'supertest';
 import app from '../src/app.js';
-import { Sequelize } from 'sequelize';
+import sequelize from '../src/config/database.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-let testSequelize;
-
 describe('API Integration Tests', () => {
   beforeAll(async () => {
-    testSequelize = new Sequelize(
-      process.env.DB_NAME,
-      process.env.DB_USER,
-      process.env.DB_PASSWORD,
-      {
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT,
-        dialect: 'postgres',
-        logging: false, // Disable logging during tests
-      }
-    );
-    await testSequelize.sync({ force: true }); // This ensures a clean slate for each test run
+    await sequelize.sync({ force: true }); // This ensures a clean slate for each test run
   });
 
   afterAll(async () => {
-    await testSequelize.close();
+    await sequelize.close();
   });
 
   describe('Health Check', () => {
