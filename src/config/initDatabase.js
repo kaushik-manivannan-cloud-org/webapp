@@ -1,11 +1,11 @@
 import { Sequelize } from 'sequelize';
-import logger from '../utils/logger.js';
 import sequelize from './database.js';
+import logger from '../utils/logger.js';
 
 const { DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, POSTGRES_ADMIN_USER, POSTGRES_ADMIN_PASSWORD } = process.env;
 
 async function initDatabase() {
-  // Create a connection to the default 'postgres' database
+  // Create a connection to the default 'postgres' database as admin
   const adminSequelize = new Sequelize('postgres', POSTGRES_ADMIN_USER, POSTGRES_ADMIN_PASSWORD, {
     host: DB_HOST,
     port: DB_PORT,
@@ -24,15 +24,8 @@ async function initDatabase() {
       await adminSequelize.query(`CREATE DATABASE ${DB_NAME}`);
     }
 
-    // Close the admin connection
-    await adminSequelize.close();
-
-    // Authenticate with the application database
-    await sequelize.authenticate();
-    logger.info('Sequelize connected to the application database successfully');
-
     // Create or update user (if needed)
-    await sequelize.query(`
+    await adminSequelize.query(`
       DO $$
       BEGIN
         IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '${DB_USER}') THEN
@@ -45,14 +38,21 @@ async function initDatabase() {
     `);
 
     // Grant privileges
-    await sequelize.query(`
+    await adminSequelize.query(`
       GRANT ALL PRIVILEGES ON DATABASE ${DB_NAME} TO ${DB_USER};
       GRANT ALL PRIVILEGES ON SCHEMA public TO ${DB_USER};
       ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO ${DB_USER};
       ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO ${DB_USER};
     `);
 
+    // Close the connection to the 'postgres' database
+    await adminSequelize.close();
+
     logger.info('Database and user setup complete');
+
+    // Authenticate with the application database using the new user
+    await sequelize.authenticate();
+    logger.info('Sequelize connected to the application database successfully');
 
     // Sync all models
     await sequelize.sync({ alter: true });
