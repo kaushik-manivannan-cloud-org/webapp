@@ -6,6 +6,7 @@ import { validatePayload } from '../middleware/validatePayload.js';
 import { checkNoPayload } from '../middleware/checkNoPayload.js';
 import { createUserSchema, updateUserSchema } from '../schemas/userSchemas.js';
 import auth from '../middleware/auth.js';
+import checkAuth from '../middleware/checkAuth.js';
 
 const router = express.Router();
 
@@ -15,6 +16,7 @@ router.route('/')
     logger.info("User creation request received");
     next();
     },
+    checkAuth,
     validatePayload(createUserSchema),
     createUser
   )

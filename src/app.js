@@ -4,6 +4,9 @@ import logger from './utils/logger.js';
 import { pageNotFound } from './middleware/pageNotFound.js';
 import noCache from './middleware/noCache.js';
 import initDatabase from './config/initDatabase.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,12 +25,13 @@ const startServer = async () => {
     } else {
       logger.warn('Database initialization failed. Starting server without database connection.');
     }
-    app.listen(PORT, () => {
-      logger.info(`Server is running on port ${PORT}`);
-    });
   } catch (error) {
     logger.error('Failed to start server:', error);
     process.exit(1);
+  } finally {
+    app.listen(PORT, () => {
+      logger.info(`Server is running on port ${PORT}`);
+    });
   }
 };
 
