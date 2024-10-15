@@ -35,6 +35,13 @@ jobs:
 
     - name: Install Dependencies
       run: npm ci
+    
+    - name: Wait for PostgreSQL to be ready
+      run: |
+        until pg_isready -h localhost -p 5432; do
+          echo "Waiting for database connection..."
+          sleep 5
+        done
 
     - name: Run Tests
       env:
