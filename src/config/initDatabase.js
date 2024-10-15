@@ -1,4 +1,3 @@
-import { Sequelize } from 'sequelize';
 import sequelize from './database.js';
 import pg from 'pg';
 import dotenv from 'dotenv';
@@ -7,12 +6,7 @@ import User from '../models/user.js';
 
 dotenv.config();
 
-const { DB_HOST, DB_PORT } = process.env;
-const DB_NAME = process.env.DB_NAME;
-const DB_USER = process.env.DB_USER;
-const DB_PASSWORD = process.env.DB_PASSWORD;
-const POSTGRES_ADMIN_USER = process.env.POSTGRES_ADMIN_USER;
-const POSTGRES_ADMIN_PASSWORD = process.env.POSTGRES_ADMIN_PASSWORD;
+const { DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, POSTGRES_ADMIN_USER } = process.env;
 
 async function createClient(database) {
   const client = new pg.Client({
@@ -77,7 +71,7 @@ async function initDatabase() {
     logger.info('Database and user setup complete');
   } catch (error) {
     logger.error('Error in database initialization:', error);
-    throw error;
+    return false;
   } finally {
     if (adminClient) {
       await adminClient.end();
@@ -95,7 +89,7 @@ async function initDatabase() {
     return sequelize;
   } catch (error) {
     logger.error('Sequelize unable to connect to the database:', error);
-    throw error;
+    return false;
   }
 }
 
