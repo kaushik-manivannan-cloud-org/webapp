@@ -62,10 +62,6 @@ async function initDatabase() {
   } catch (error) {
     logger.error('Error in database initialization:', error);
     return false;
-  } finally {
-    if (adminSequelize) {
-      await adminSequelize.close();
-    }
   }
 }
 

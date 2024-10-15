@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
 import request from 'supertest';
 import app from '../src/app.js';
+import { Sequelize } from 'sequelize';
 import sequelize from '../src/config/database.js';
 import dotenv from 'dotenv';
 

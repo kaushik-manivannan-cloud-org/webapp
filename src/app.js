@@ -22,12 +22,15 @@ const startServer = async () => {
     const dbInitialized = await initDatabase();
     if (dbInitialized) {
       logger.info('Database initialized successfully');
+      app.listen(PORT, () => {
+        logger.info(`Server is running on port ${PORT}`);
+      });
     } else {
       logger.warn('Database initialization failed. Starting server without database connection.');
+      app.listen(PORT, () => {
+        logger.info(`Server is running on port ${PORT}`);
+      });
     }
-    app.listen(PORT, () => {
-      logger.info(`Server is running on port ${PORT}`);
-    });
   } catch (error) {
     logger.error('Failed to start server:', error);
     process.exit(1);
