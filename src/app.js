@@ -16,7 +16,12 @@ app.use(pageNotFound);
 
 const startServer = async () => {
   try {
-    const sequelize = await initDatabase();
+    const dbInitialized = await initDatabase();
+    if (dbInitialized) {
+      logger.info('Database initialized successfully');
+    } else {
+      logger.warn('Database initialization failed. Starting server without database connection.');
+    }
     app.listen(PORT, () => {
       logger.info(`Server is running on port ${PORT}`);
     });
