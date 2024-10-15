@@ -4,6 +4,9 @@ import logger from './utils/logger.js';
 import { pageNotFound } from './middleware/pageNotFound.js';
 import noCache from './middleware/noCache.js';
 import initDatabase from './config/initDatabase.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
