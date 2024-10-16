@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/macos,visualstudiocode,database,node
-# Edit at https://www.toptal.com/developers/gitignore?templates=macos,visualstudiocode,database,node
+# Created by https://www.toptal.com/developers/gitignore/api/node,git,visualstudiocode,macos,database,packer
+# Edit at https://www.toptal.com/developers/gitignore?templates=node,git,visualstudiocode,macos,database,packer
 
 ### Database ###
 *.accdb
@@ -10,6 +10,21 @@
 *.sqlite3
 *.db-shm
 *.db-wal
+
+### Git ###
+# Created by git for backups. To disable backups in Git:
+# $ git config --global mergetool.keepBackup false
+*.orig
+
+# Created by git when using merge tools for conflicts
+*.BACKUP.*
+*.BASE.*
+*.LOCAL.*
+*.REMOTE.*
+*_BACKUP_*.txt
+*_BASE_*.txt
+*_LOCAL_*.txt
+*_REMOTE_*.txt
 
 ### macOS ###
 # General
@@ -184,6 +199,28 @@ dist
 # SvelteKit build / generate output
 .svelte-kit
 
+### Packer ###
+# Cache objects
+packer_cache/
+
+# Crash log
+crash.log
+
+# https://www.packer.io/guides/hcl/variables
+# Exclude all .pkrvars.hcl files, which are likely to contain sensitive data,
+# such as password, private keys, and other secrets. These should not be part of
+# version control as they are data points which are potentially sensitive and
+# subject to change depending on the environment.
+#
+*.pkrvars.hcl
+
+# For built boxes
+*.box
+
+### Packer Patch ###
+# ignore temporary output files
+output-*/
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
@@ -203,4 +240,4 @@ dist
 .history
 .ionide
 
-# End of https://www.toptal.com/developers/gitignore/api/macos,visualstudiocode,database,node
+# End of https://www.toptal.com/developers/gitignore/api/node,git,visualstudiocode,macos,database,packer
