@@ -1,0 +1,16 @@
+[Unit]
+Description=Express.js Web Application
+After=network.target postgresql.service
+
+[Service]
+Environment=NODE_ENV=production
+Type=simple
+User=csye6225
+WorkingDirectory=/opt/webapp
+ExecStart=/usr/bin/node /opt/webapp/src/app.js
+Restart=on-failure
+RestartSec=10
+SyslogIdentifier=webapp
+
+[Install]
+WantedBy=multi-user.target
