@@ -74,7 +74,9 @@ jobs:
     - name: Create artifact
       run: |
         mkdir -p artifact
+        shopt -s dotglob
         cp -R src package.json package-lock.json .env webapp.service artifact/
+        shopt -u dotglob
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
