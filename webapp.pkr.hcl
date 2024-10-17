@@ -52,13 +52,25 @@ variable "artifact_path" {
   default = "." # Default to current directory
 }
 
+variable "vpc_id" {
+  type    = string
+  default = "vpc-0ef45a95e768e4b4a"
+}
+
+variable "subnet_id" {
+  type    = string
+  default = "subnet-0a2cea895fb81ad0f"
+}
+
 source "amazon-ebs" "ubuntu" {
   region          = var.aws_region
   ami_name        = "csye6225-${var.app_name}-${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
   ami_description = "Ubuntu AMI for CSYE 6225 Webapp"
+  vpc_id          = var.vpc_id
+  subnet_id       = var.subnet_id
 
   ami_regions = [
-    "us-east-1"
+    var.aws_region
   ]
 
   ami_users = [
@@ -72,7 +84,7 @@ source "amazon-ebs" "ubuntu" {
 
   instance_type = var.instance_type
   source_ami    = var.source_ami
-  ssh_username  = "ubuntu"
+  ssh_username  = var.ssh_username
 
   tags = {
     Name = "csye6225-${var.app_name}"
