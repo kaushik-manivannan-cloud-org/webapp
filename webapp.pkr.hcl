@@ -49,6 +49,7 @@ variable "db_name" {
 
 variable "artifact_path" {
   type = string
+  default = "application.zip"
 }
 
 source "amazon-ebs" "ubuntu" {
