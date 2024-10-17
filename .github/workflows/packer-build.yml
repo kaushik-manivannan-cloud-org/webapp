@@ -79,8 +79,8 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: webapp
-        path: webapp
+        name: artifact
+        path: artifact
 
   packer_build:
     needs: create_artifact
@@ -104,14 +104,19 @@ jobs:
     - name: Download artifact
       uses: actions/download-artifact@v3
       with:
-        name: webapp
-        path: webapp
+        name: artifact
+        path: artifact
+
+    - name: List downloaded artifact contents
+      run: |
+        echo "Contents of artifact directory:"
+        ls -R artifact
 
     - name: Initialize Packer
       run: packer init .
     
     - name: Build Packer Image
-      run: packer build webapp.pkr.hcl
+      run: packer build -var="artifact_path=artifact" webapp.pkr.hcl
 
     - name: Clean up
       if: always()
