@@ -1,0 +1,118 @@
+name: Packer Build
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+jobs:
+  integration_test:
+    if: github.event.pull_request.merged == true
+    name: Run Integration Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_ADMIN_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Run Integration Tests
+      env:
+        PORT: ${{ secrets.PORT }}
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_PORT: ${{ secrets.DB_PORT }}
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        POSTGRES_ADMIN_USER: ${{ secrets.POSTGRES_ADMIN_USER }}
+        POSTGRES_ADMIN_PASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
+      run: npm test -- --forceExit
+
+  create_artifact:
+    needs: integration_test
+    name: Create Application Artifact
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Create .env file
+      run: |
+        echo "PORT=${{ secrets.PORT }}" >> .env
+        echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+        echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+        echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+        echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+        echo "POSTGRES_ADMIN_USER=${{ secrets.POSTGRES_ADMIN_USER }}" >> .env
+        echo "POSTGRES_ADMIN_PASSWORD=${{ secrets.POSTGRES_ADMIN_PASSWORD }}" >> .env
+
+    - name: Create artifact
+      run: |
+        mkdir -p artifact
+        cp -R src package.json package-lock.json .env artifact/
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: webapp
+        path: artifact
+
+  packer_build:
+    needs: create_artifact
+    name: Build Packer Image
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+        
+    - name: Setup Packer
+      uses: hashicorp/setup-packer@main
+
+    - name: Download artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: webapp
+        path: webapp
+
+    - name: Initialize Packer
+      run: packer init .
+    
+    - name: Build Packer Image
+      run: packer build webapp.pkr.hcl
+
+    - name: Clean up
+      if: always()
+      run: rm -rf webapp
