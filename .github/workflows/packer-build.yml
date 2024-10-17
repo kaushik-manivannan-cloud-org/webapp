@@ -105,12 +105,12 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: artifact
-        path: artifact
+        path: artifact/
 
     - name: List downloaded artifact contents
       run: |
         echo "Contents of artifact directory:"
-        ls -R artifact
+        ls -R
 
     - name: Initialize Packer
       run: packer init .
