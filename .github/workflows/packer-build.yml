@@ -80,7 +80,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: webapp
-        path: artifact
+        path: webapp
 
   packer_build:
     needs: create_artifact

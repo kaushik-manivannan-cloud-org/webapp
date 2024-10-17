@@ -112,7 +112,7 @@ build {
   }
 
   provisioner "file" {
-    source      = "../webapp/"
+    source      = "webapp/"
     destination = "/opt/${var.app_name}"
   }
 
@@ -130,9 +130,9 @@ build {
       "sudo mv /tmp/webapp.service /etc/systemd/system/webapp.service",
       "sudo systemctl daemon-reload",
       "sudo systemctl enable webapp.service", # Enable the service on boot
-      "sudo mkdir -p /var/log/webapp",        # Create log directory
-      "sudo ln -s /opt/webapp/src/logs/app.log /var/log/webapp/app.log",
-      "sudo chown -R csye6225:csye6225 /var/log/webapp", # Set ownership of log files
+      "sudo mkdir -p /opt/${var.app_name}/src/logs",
+      "sudo chown -R csye6225:csye6225 /opt/${var.app_name}/src/logs",
+      "sudo chmod 755 /opt/${var.app_name}/src/logs",
       "echo 'Installation and setup completed successfully'"
     ]
   }
