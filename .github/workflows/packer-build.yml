@@ -79,6 +79,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
+        include-hidden-files: true
         name: webapp
         path: artifact
 
