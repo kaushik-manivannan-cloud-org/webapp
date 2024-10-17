@@ -68,6 +68,7 @@ jobs:
         echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
         echo "DB_USER=${{ secrets.DB_USER }}" >> .env
         echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+        echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
         echo "POSTGRES_ADMIN_USER=${{ secrets.POSTGRES_ADMIN_USER }}" >> .env
         echo "POSTGRES_ADMIN_PASSWORD=${{ secrets.POSTGRES_ADMIN_PASSWORD }}" >> .env
 
@@ -110,9 +111,6 @@ jobs:
 
     - name: Initialize Packer
       run: packer init .
-    
-    - name: Verify .env file contents
-      run: cat artifact/.env
     
     - name: Build Packer Image
       run: packer build -var="artifact_path=artifact" webapp.pkr.hcl
