@@ -71,15 +71,10 @@ jobs:
         echo "POSTGRES_ADMIN_USER=${{ secrets.POSTGRES_ADMIN_USER }}" >> .env
         echo "POSTGRES_ADMIN_PASSWORD=${{ secrets.POSTGRES_ADMIN_PASSWORD }}" >> .env
 
-    - name: Verify .env file exists
-      run: ls -la .env
-      
     - name: Create artifact
       run: |
         mkdir -p artifact
-        ls -la  # List all files before copying
-        cp -v .env src package.json package-lock.json webapp.service artifact/
-        ls -la artifact  # List files inside the artifact to confirm
+        cp -R src package.json package-lock.json .env webapp.service artifact/
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
@@ -114,6 +109,9 @@ jobs:
 
     - name: Initialize Packer
       run: packer init .
+    
+    - name: Verify .env file contents
+      run: cat artifact/.env
     
     - name: Build Packer Image
       run: packer build -var="artifact_path=artifact" webapp.pkr.hcl
