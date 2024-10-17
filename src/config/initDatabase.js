@@ -1,6 +1,9 @@
 import { Sequelize } from 'sequelize';
 import sequelize from './database.js';
 import logger from '../utils/logger.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const { DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, POSTGRES_ADMIN_USER, POSTGRES_ADMIN_PASSWORD } = process.env;
 
