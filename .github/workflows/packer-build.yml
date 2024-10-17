@@ -74,9 +74,13 @@ jobs:
     - name: Create artifact
       run: |
         mkdir -p artifact
-        cp package.json package-lock.json .env webapp.service artifact/
-        cd artifact && zip -r ../application.zip .
-        cd .. && rm -rf artifact
+        cp -R src package.json package-lock.json .env artifact/
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: webapp
+        path: artifact
 
   packer_build:
     needs: create_artifact
@@ -97,12 +101,18 @@ jobs:
     - name: Setup Packer
       uses: hashicorp/setup-packer@main
 
+    - name: Download artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: webapp
+        path: webapp
+
     - name: Initialize Packer
       run: packer init .
     
     - name: Build Packer Image
-      run: packer build -var="artifact_path=application.zip" webapp.pkr.hcl
+      run: packer build webapp.pkr.hcl
 
     - name: Clean up
       if: always()
-      run: rm -f application.zip .env
+      run: rm -rf webapp

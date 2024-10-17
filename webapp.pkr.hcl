@@ -47,11 +47,6 @@ variable "db_name" {
   default = "cloud_db"
 }
 
-variable "artifact_path" {
-  type    = string
-  default = "application.zip"
-}
-
 source "amazon-ebs" "ubuntu" {
   region          = var.aws_region
   ami_name        = "csye6225-${var.app_name}-${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
@@ -106,9 +101,8 @@ build {
       "sudo apt-get install -y postgresql postgresql-contrib",
       "sudo systemctl start postgresql",
       "sudo systemctl enable postgresql",
-      // "sudo -u postgres createuser --superuser ${var.db_username}",
-      // "sudo -u postgres createdb -O ${var.db_username} ${var.db_name}",
-      "sudo -u postgres psql -c \"CREATE USER ${var.db_username} WITH SUPERUSER CREATEDB PASSWORD 'Kaumani12$#@';\"",
+      # "sudo -u postgres createuser --superuser ${var.ssh_username}",
+      # "sudo -u postgres createdb -O ${var.ssh_username} ${var.app_name}",
       "sudo groupadd csye6225",
       "sudo useradd -g csye6225 -m -s /usr/sbin/nologin csye6225",
       "sudo mkdir -p /opt/${var.app_name}",           # Create application directory
@@ -117,7 +111,7 @@ build {
   }
 
   provisioner "file" {
-    source      = "${var.artifact_path}/"
+    source      = "../webapp/"
     destination = "/opt/${var.app_name}"
   }
 
@@ -135,9 +129,6 @@ build {
       "sudo mv /tmp/webapp.service /etc/systemd/system/webapp.service",
       "sudo systemctl daemon-reload",
       "sudo systemctl enable webapp.service", # Enable the service on boot
-      "sudo mkdir -p /opt/${var.app_name}/src/logs",
-      "sudo chown -R csye6225:csye6225 /opt/${var.app_name}/src/logs",
-      "sudo chmod 755 /opt/${var.app_name}/src/logs",
       "echo 'Installation and setup completed successfully'"
     ]
   }
