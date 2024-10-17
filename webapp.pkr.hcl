@@ -108,6 +108,8 @@ build {
       "sudo systemctl enable postgresql",
       # "sudo -u postgres createuser --superuser ${var.ssh_username}",
       # "sudo -u postgres createdb -O ${var.ssh_username} ${var.app_name}",
+      "sudo -u postgres psql -c \"CREATE USER ${var.db_username} WITH SUPERUSER CREATEDB PASSWORD '${var.db_username}';\"",
+      "sudo -u postgres psql -c \"CREATE DATABASE ${var.db_name} OWNER ${var.db_username};\"",
       "sudo groupadd csye6225",
       "sudo useradd -g csye6225 -m -s /usr/sbin/nologin csye6225",
       "sudo mkdir -p /opt/${var.app_name}",           # Create application directory
