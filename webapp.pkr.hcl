@@ -125,7 +125,7 @@ build {
       "set -e",                                               # Exit immediately if a command exits with a non-zero status
       "sudo chown -R csye6225:csye6225 /opt/${var.app_name}", # Set ownership of application files
       "cd /opt/${var.app_name}",
-      "sudo -u csye6225 npm install", # Install app dependencies as csye6225
+      "sudo -u csye6225 npm ci --production", # Install app dependencies as csye6225
       "sudo mv /tmp/webapp.service /etc/systemd/system/webapp.service",
       "sudo systemctl daemon-reload",
       "sudo systemctl enable webapp.service", # Enable the service on boot
