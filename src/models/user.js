@@ -45,12 +45,12 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notEmpty: true
-        // is: {
-        //   args: ["^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"],
-        //   notEmpty: true,
-        //   msg: "Password must contain atleast 8 characters with atleast one uppercase, one lowercase, one number, and one special character."
-        // }
+        notEmpty: true,
+        is: {
+          args: ["^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"],
+          notEmpty: true,
+          msg: "Password must contain atleast 8 characters with atleast one uppercase, one lowercase, one number, and one special character."
+        }
       }
     }
   },
