@@ -54,12 +54,12 @@ variable "artifact_path" {
 
 variable "vpc_id" {
   type    = string
-  default = "vpc-0ef45a95e768e4b4a"
+  default = "vpc-0398bf5ad5852d51d"
 }
 
 variable "subnet_id" {
   type    = string
-  default = "subnet-0a2cea895fb81ad0f"
+  default = "subnet-015e51ff42a7244b6"
 }
 
 source "amazon-ebs" "ubuntu" {
