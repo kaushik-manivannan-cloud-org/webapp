@@ -112,7 +112,7 @@ build {
   }
 
   provisioner "file" {
-    source      = "./webapp/"
+    source      = "../webapp/"
     destination = "/opt/${var.app_name}"
   }
 
