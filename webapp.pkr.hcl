@@ -101,9 +101,8 @@ build {
       "sudo apt-get install -y postgresql postgresql-contrib",
       "sudo systemctl start postgresql",
       "sudo systemctl enable postgresql",
-      // "sudo -u postgres createuser --superuser ${var.db_username}",
-      // "sudo -u postgres createdb -O ${var.db_username} ${var.db_name}",
-      "sudo -u postgres psql -c \"CREATE USER ${var.db_username} WITH SUPERUSER CREATEDB PASSWORD 'Kaumani12$#@';\"",
+      # "sudo -u postgres createuser --superuser ${var.ssh_username}",
+      # "sudo -u postgres createdb -O ${var.ssh_username} ${var.app_name}",
       "sudo groupadd csye6225",
       "sudo useradd -g csye6225 -m -s /usr/sbin/nologin csye6225",
       "sudo mkdir -p /opt/${var.app_name}",           # Create application directory
@@ -130,9 +129,6 @@ build {
       "sudo mv /tmp/webapp.service /etc/systemd/system/webapp.service",
       "sudo systemctl daemon-reload",
       "sudo systemctl enable webapp.service", # Enable the service on boot
-      "sudo mkdir -p /var/log/webapp",        # Create log directory
-      "sudo ln -s /opt/webapp/src/logs/app.log /var/log/webapp/app.log",
-      "sudo chown -R csye6225:csye6225 /var/log/webapp", # Set ownership of log files
       "echo 'Installation and setup completed successfully'"
     ]
   }
