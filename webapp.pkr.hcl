@@ -49,7 +49,6 @@ variable "db_name" {
 
 variable "artifact_path" {
   type    = string
-  default = "artifact"
 }
 
 source "amazon-ebs" "ubuntu" {
