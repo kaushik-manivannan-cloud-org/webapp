@@ -47,6 +47,11 @@ variable "db_name" {
   default = "cloud_db"
 }
 
+variable "artifact_path" {
+  type    = string
+  default = "." # Default to current directory
+}
+
 source "amazon-ebs" "ubuntu" {
   region          = var.aws_region
   ami_name        = "csye6225-${var.app_name}-${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
@@ -111,12 +116,12 @@ build {
   }
 
   provisioner "file" {
-    source      = "../webapp/"
+    source      = "${var.artifact_path}/"
     destination = "/opt/${var.app_name}"
   }
 
   provisioner "file" {
-    source      = "./webapp.service"
+    source      = "${var.artifact_path}/webapp.service"
     destination = "/tmp/webapp.service"
   }
 

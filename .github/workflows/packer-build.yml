@@ -74,7 +74,7 @@ jobs:
     - name: Create artifact
       run: |
         mkdir -p artifact
-        cp -R src package.json package-lock.json .env artifact/
+        cp -R src package.json package-lock.json .env webapp.service artifact/
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
@@ -105,14 +105,14 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: webapp
-        path: webapp
+        path: artifact
 
     - name: Initialize Packer
       run: packer init .
     
     - name: Build Packer Image
-      run: packer build webapp.pkr.hcl
+      run: packer build -var="artifact_path=artifact" webapp.pkr.hcl
 
     - name: Clean up
       if: always()
-      run: rm -rf webapp
+      run: rm -rf artifact
