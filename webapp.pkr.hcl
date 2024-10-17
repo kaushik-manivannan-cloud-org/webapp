@@ -92,17 +92,12 @@ build {
     "source.amazon-ebs.ubuntu"
   ]
 
-  provisioner "file" {
-    source      = "scripts/"
-    destination = "/tmp/"
+  provisioner "shell" {
+    script = "scripts/update_and_install.sh"
   }
 
   provisioner "shell" {
-    script = "/tmp/update_and_install.sh"
-  }
-
-  provisioner "shell" {
-    script = "/tmp/setup_postgresql.sh"
+    script = "scripts/setup_postgresql.sh"
     environment_vars = [
       "DB_USERNAME=${var.db_username}",
       "DB_NAME=${var.db_name}"
@@ -110,7 +105,7 @@ build {
   }
 
   provisioner "shell" {
-    script = "/tmp/create_user_and_directory.sh"
+    script = "scripts/create_user_and_directory.sh"
     environment_vars = [
       "APP_NAME=${var.app_name}"
     ]
@@ -127,13 +122,13 @@ build {
   }
 
   provisioner "shell" {
-    script = "/tmp/setup_application.sh"
+    script = "scripts/setup_application.sh"
     environment_vars = [
       "APP_NAME=${var.app_name}"
     ]
   }
 
   provisioner "shell" {
-    script = "/tmp/cleanup.sh"
+    script = "scripts/cleanup.sh"
   }
 }
