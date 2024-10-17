@@ -93,27 +93,21 @@ build {
   ]
 
   provisioner "shell" {
-    environment_vars = [
-      "DEBIAN_FRONTEND=noninteractive",
-      "CHECKPOINT_DISABLE=1"
-    ]
+    script = "scripts/update_and_install.sh"
+  }
 
-    inline = [
-      "sudo apt-get update",
-      "sudo apt-get upgrade -y",
-      "curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -",
-      "sudo apt-get install -y nodejs",
-      "sudo apt-get install -y postgresql postgresql-contrib",
-      "sudo systemctl start postgresql",
-      "sudo systemctl enable postgresql",
-      # "sudo -u postgres createuser --superuser ${var.ssh_username}",
-      # "sudo -u postgres createdb -O ${var.ssh_username} ${var.app_name}",
-      "sudo -u postgres psql -c \"CREATE USER ${var.db_username} WITH SUPERUSER CREATEDB PASSWORD '${var.db_username}';\"",
-      "sudo -u postgres psql -c \"CREATE DATABASE ${var.db_name} OWNER ${var.db_username};\"",
-      "sudo groupadd csye6225",
-      "sudo useradd -g csye6225 -m -s /usr/sbin/nologin csye6225",
-      "sudo mkdir -p /opt/${var.app_name}",           # Create application directory
-      "sudo chown ubuntu:ubuntu /opt/${var.app_name}" # Temporarily set ownership to ubuntu
+  provisioner "shell" {
+    script = "scripts/setup_postgresql.sh"
+    environment_vars = [
+      "DB_USERNAME=${var.db_username}",
+      "DB_NAME=${var.db_name}"
+    ]
+  }
+
+  provisioner "shell" {
+    script = "scripts/create_user_and_directory.sh"
+    environment_vars = [
+      "APP_NAME=${var.app_name}"
     ]
   }
 
@@ -128,23 +122,13 @@ build {
   }
 
   provisioner "shell" {
-    inline = [
-      "set -e",                                               # Exit immediately if a command exits with a non-zero status
-      "sudo chown -R csye6225:csye6225 /opt/${var.app_name}", # Set ownership of application files
-      "cd /opt/${var.app_name}",
-      "sudo -u csye6225 npm ci --production", # Install app dependencies as csye6225
-      "sudo mv /tmp/webapp.service /etc/systemd/system/webapp.service",
-      "sudo systemctl daemon-reload",
-      "sudo systemctl enable webapp.service", # Enable the service on boot
-      "echo 'Installation and setup completed successfully'"
+    script = "scripts/setup_application.sh"
+    environment_vars = [
+      "APP_NAME=${var.app_name}"
     ]
   }
 
-  # Clean up
   provisioner "shell" {
-    inline = [
-      "sudo apt-get clean",
-      "sudo rm -rf /var/lib/apt/lists/*"
-    ]
+    script = "scripts/cleanup.sh"
   }
 }
