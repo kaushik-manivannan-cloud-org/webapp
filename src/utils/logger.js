@@ -9,11 +9,16 @@ const { combine, timestamp, errors, splat, json, simple, colorize, prettyPrint }
 // Define log format
 const logFormat = combine(
   timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-  errors({stack: true}),
+  errors({ stack: true }),
   splat(),
   json(),
   prettyPrint()
 );
+
+// Determine log path based on environment
+const logFilePath = process.env.NODE_ENV === 'production'
+  ? path.join('/tmp', 'logs', 'app.log')  // Production log path
+  : path.join('src', 'logs', 'app.log');  // Development log path
 
 // Create logger
 const logger = createLogger({
@@ -22,12 +27,10 @@ const logger = createLogger({
   transports: [
     // File transport
     new transports.File({
-      filename: path.join('src', 'logs', 'app.log'),
-      level: 'debug'
-    }),
-    // new transports.File({
-    //   filename: path.join('logs', 'combined.log')
-    // })
+      filename: logFilePath,
+      level: 'debug',
+      handleExceptions: true
+    })
   ]
 });
 
