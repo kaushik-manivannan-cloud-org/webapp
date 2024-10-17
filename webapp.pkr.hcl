@@ -49,7 +49,7 @@ variable "db_name" {
 
 variable "artifact_path" {
   type    = string
-  default = "."  # Default to current directory
+  default = "." # Default to current directory
 }
 
 source "amazon-ebs" "ubuntu" {
