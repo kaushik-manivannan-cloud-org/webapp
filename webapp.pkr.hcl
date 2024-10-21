@@ -39,7 +39,7 @@ variable "demo_account_id" {
 
 variable "db_username" {
   type    = string
-  default  = "kaushik"
+  default = "kaushik"
 }
 
 variable "db_name" {
@@ -82,7 +82,7 @@ source "amazon-ebs" "ubuntu" {
     max_attempts  = 50
   }
 
-  instance_type = var.instance_type
+  instance_type = varr.instance_type
   source_ami    = var.source_ami
   ssh_username  = var.ssh_username
 
