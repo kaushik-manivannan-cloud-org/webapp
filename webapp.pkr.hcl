@@ -40,7 +40,6 @@ variable "demo_account_id" {
 variable "db_username" {
   type    = string
   default = "kaushik"
-}
 
 variable "db_name" {
   type    = string
