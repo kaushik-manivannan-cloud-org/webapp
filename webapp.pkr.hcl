@@ -82,7 +82,7 @@ source "amazon-ebs" "ubuntu" {
     max_attempts  = 50
   }
 
-  instance_type = varr.instance_type
+  instance_type = var.instance_type
   source_ami    = var.source_ami
   ssh_username  = var.ssh_username
 
