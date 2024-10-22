@@ -47,8 +47,6 @@ jobs:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        POSTGRES_ADMIN_USER: ${{ secrets.POSTGRES_ADMIN_USER }}
-        POSTGRES_ADMIN_PASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
       run: npm test -- --forceExit
 
   create_artifact:
@@ -69,8 +67,6 @@ jobs:
         echo "DB_USER=${{ secrets.DB_USER }}" >> .env
         echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
         echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
-        echo "POSTGRES_ADMIN_USER=${{ secrets.POSTGRES_ADMIN_USER }}" >> .env
-        echo "POSTGRES_ADMIN_PASSWORD=${{ secrets.POSTGRES_ADMIN_PASSWORD }}" >> .env
 
     - name: Create artifact
       run: |
