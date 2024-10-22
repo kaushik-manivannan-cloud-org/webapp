@@ -109,14 +109,6 @@ build {
   }
 
   provisioner "shell" {
-    script = "scripts/setup_postgresql.sh"
-    environment_vars = [
-      "DB_USERNAME=${var.db_username}",
-      "DB_NAME=${var.db_name}"
-    ]
-  }
-
-  provisioner "shell" {
     script = "scripts/create_user_and_directory.sh"
     environment_vars = [
       "APP_NAME=${var.app_name}"
