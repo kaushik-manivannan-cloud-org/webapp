@@ -14,7 +14,7 @@ variable "aws_region" {
 
 variable "source_ami" {
   type    = string
-  default = "${env("SOURCE_AMI")}"
+  default = "ami-0866a3c8686eaeeba" // Ubuntu 24.04 LTS AMI ID
 }
 
 variable "instance_type" {
