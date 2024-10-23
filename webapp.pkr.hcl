@@ -115,10 +115,6 @@ build {
     ]
   }
 
-  provisioner "shell" {
-    script = "scripts/create_env_file.sh"
-  }
-
   provisioner "file" {
     source      = "${var.artifact_path}/"
     destination = "/opt/${var.app_name}"
