@@ -1,71 +1,179 @@
-# Health Check API Project
+# Cloud Native Web Application
 
-This project implements a health check API for a web application, providing a way to monitor the health of the app and its database connection.
+A high-performance, cloud-native web application built with modern DevOps practices and cloud-first architecture. This application provides robust user management capabilities with secure authentication, health monitoring, and automated deployment pipelines. Designed for scalability and resilience, it leverages containerization, infrastructure as code, and automated testing to ensure reliable deployment across cloud environments.
+
+The application follows cloud-native principles including:
+- Microservices-based architecture
+- Containerized deployment
+- Infrastructure as Code (IaC)
+- Automated CI/CD pipeline
+- Health monitoring and logging
+- Stateless application design
+- Cloud-native storage with PostgreSQL
+- DevOps-oriented development practices
+
+## Table of Contents
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [Prerequisites](#prerequisites)
+- [Setup and Installation](#setup-and-installation)
+- [API Endpoints](#api-endpoints)
+- [Testing](#testing)
+- [CI/CD Pipeline](#cicd-pipeline)
+
+## Features
+- User Management (Create, Read, Update)
+- Basic Authentication
+- Health Check Endpoints
+- Database Integration with PostgreSQL
+- Comprehensive Error Handling
+- Detailed Logging System
+- Input Validation
+- Cache Control Headers
+- CI/CD Integration
+
+## Technology Stack
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: PostgreSQL
+- **ORM**: Sequelize
+- **Authentication**: Basic Auth
+- **Testing**: Jest, Supertest
+- **Logging**: Winston
+- **Validation**: Joi
+- **CI/CD**: GitHub Actions
+- **Infrastructure**: Packer, AWS
+
+## Project Structure
+```
+webapp/
+├── .github/
+│   └── workflows/           # GitHub Actions workflow files
+├── src/
+│   ├── config/             # Database and app configuration
+│   ├── controllers/        # Request handlers
+│   ├── middleware/         # Express middleware
+│   ├── models/            # Sequelize models
+│   ├── routes/            # API routes
+│   ├── schemas/           # Validation schemas
+│   ├── services/          # Business logic
+│   ├── utils/             # Utility functions
+│   └── app.js             # Application entry point
+├── scripts/               # Shell scripts for deployment
+├── tests/                 # Test files
+└── .env                   # Environment variables
+```
 
 ## Prerequisites
+- Node.js (v22 or higher)
+- PostgreSQL (v13 or higher)
+- npm (latest version)
 
-Before you begin, ensure you have the following installed on your machine:
-
-* Node.js (v14.0.0 or higher)
-* npm (v6.0.0 or higher)
-* PostgreSQL (v12.0 or higher)
-
-## Setting Up the Project
-
-To set up the project locally, follow these steps:
+## Setup and Installation
 
 1. Clone the repository:
-   ```
-   git clone https://github.com/kaushik-manivannan/webapp.git
-   cd webapp
-   ```
+```bash
+git clone https://github.com/kaushik-manivannan/webapp.git
+cd webapp
+```
 
 2. Install dependencies:
-   ```
-   npm install
-   ```
-
-3. Set up environment variables:
-   Create a `.env` file in the root directory and add the following:
-   ```
-   DB_NAME=your_database_name
-   DB_USER=your_database_user
-   DB_PASSWORD=your_database_password
-   DB_HOST=localhost
-   DB_PORT=5432
-   PORT=3000
-   NODE_ENV=development
-   ```
-   Replace the values with your actual database credentials.
-
-4. Set up the database:
-   - Ensure PostgreSQL is running on your machine.
-   - Create a new database that matches the `DB_NAME` in your `.env` file.
-
-## Running the Application Locally
-
-To run the application locally, use the following command:
-
+```bash
+npm install
 ```
+
+3. Create a `.env` file in the root directory with the following configuration:
+```env
+DB_NAME=your_database_name
+DB_USER=your_root_db_username
+DB_PASSWORD=your_root_db_password
+DB_HOST=localhost
+DB_PORT=5432
+PORT=3000
+LOG_LEVEL=debug
+NODE_ENV=development
+```
+
+4. Start the application:
+```bash
+# Development mode
+npm run dev
+
+# Production mode
 npm start
 ```
 
-The server will start, and you should see a message indicating it's running on the specified port (default is 3000).
+## API Endpoints
 
-## Testing the Health Check API
+### Health Check
+- `GET /healthz`
+  - Returns 200 OK if application is healthy
+  - Returns 503 if database is unavailable
+  - No request body or query parameters allowed
 
-Once the application is running, you can test the health check API:
+### User Management
+- `POST /v1/user`
+  - Create new user
+  - No authentication required
+  - Request body:
+    ```json
+    {
+      "first_name": "John",
+      "last_name": "Doe",
+      "email": "john.doe@example.com",
+      "password": "SecurePass123!"
+    }
+    ```
 
-1. Using curl:
-   ```
-   curl -v http://localhost:3000/healthz
-   ```
+- `GET /v1/user/self`
+  - Get user details
+  - Requires basic authentication
+  - No request body
 
-2. Using a REST Client (like Postman, Bruno) or a Web Browser:
-   Navigate to `http://localhost:3000/healthz`
+- `PUT /v1/user/self`
+  - Update user details
+  - Requires basic authentication
+  - Request body (all fields optional):
+    ```json
+    {
+      "first_name": "John",
+      "last_name": "Doe",
+      "password": "NewPass123!"
+    }
+    ```
 
-A successful response should return a 200 OK status. If there are any issues with the database connection, it will return a 503 Service Unavailable status.
+## Testing
 
-## Contributing
+Run the test suite:
+```bash
+npm test
+```
 
-Contributions to this project are welcome. Please ensure you follow the existing code style and add unit tests for any new features.
+The test suite includes:
+- Integration tests
+- API endpoint tests
+- Database connection tests
+- Authentication tests
+- Input validation tests
+
+## CI/CD Pipeline
+
+The application uses GitHub Actions for continuous integration and deployment:
+
+1. **Run Application Tests (`ci-tests.yml`)**
+   - Triggered on pull requests to main
+   - Sets up test environment
+   - Runs test suite
+   - Validates code quality
+
+2. **Packer Build (`packer-build.yml`)**
+   - Triggered when PR is merged to main
+   - Creates application artifact
+   - Builds AMI using Packer
+   - Deploys to AWS
+
+3. **Packer Validate (`packer-validate.yml`)**
+   - Validates Packer configuration
+   - Checks formatting
+   - Runs on pull requests
