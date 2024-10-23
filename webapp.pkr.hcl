@@ -9,12 +9,12 @@ packer {
 
 variable "aws_region" {
   type    = string
-  default = "us-east-1"
+  default = "${env("AWS_REGION")}"
 }
 
 variable "source_ami" {
   type    = string
-  default = "ami-0866a3c8686eaeeba" // Ubuntu 24.04 LTS AMI ID
+  default = "${env("SOURCE_AMI")}"
 }
 
 variable "instance_type" {
@@ -34,17 +34,7 @@ variable "app_name" {
 
 variable "demo_account_id" {
   type    = string
-  default = "881490123305"
-}
-
-variable "db_username" {
-  type    = string
-  default = "kaushik"
-}
-
-variable "db_name" {
-  type    = string
-  default = "cloud_db"
+  default = "${env("DEMO_ACCOUNT_ID")}"
 }
 
 variable "artifact_path" {
@@ -54,12 +44,12 @@ variable "artifact_path" {
 
 variable "vpc_id" {
   type    = string
-  default = "vpc-0398bf5ad5852d51d"
+  default = "${env("VPC_ID")}"
 }
 
 variable "subnet_id" {
   type    = string
-  default = "subnet-015e51ff42a7244b6"
+  default = "${env("SUBNET_ID")}"
 }
 
 source "amazon-ebs" "ubuntu" {
