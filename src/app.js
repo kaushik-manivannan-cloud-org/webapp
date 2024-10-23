@@ -8,24 +8,35 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Initialize Express application
 const app = express();
+
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json()); 
-app.use(express.urlencoded({ extended: true }));
-app.use(noCache);
+// Middleware
+app.use(express.json()); // Parse JSON request bodies
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(noCache); // Prevent response caching
+
+// Register application routes
 registerRoutes(app);
+
+// Handle 404 errors for unmatched routes
 app.use(pageNotFound);
 
+// Start the server and connect to the database
 const startServer = async () => {
   try {
+    // Initialize database connection
     const dbInitialized = await initDatabase();
     if (dbInitialized) {
       logger.info('Database initialized successfully');
     } else {
+      // Continue server startup even if database fails to initialize
       logger.warn('Database initialization failed. Starting server without database connection.');
     }
   } catch (error) {
+    // Log fatal errors and exit process
     logger.error('Failed to start server:', error);
     process.exit(1);
   } finally {
@@ -35,6 +46,7 @@ const startServer = async () => {
   }
 };
 
+// Initialize the server
 startServer();
 
 export default app;
