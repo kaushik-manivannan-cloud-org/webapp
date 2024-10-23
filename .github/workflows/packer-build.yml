@@ -105,11 +105,10 @@ jobs:
     
     - name: Build Packer Image
       env:
-        VPC_ID: ${{ secrets.VPC_ID }}
-        SUBNET_ID: ${{ secrets.SUBNET_ID }}
+        VPC_ID: ${{ secrets.DEFAULT_VPC_ID }}
+        SUBNET_ID: ${{ secrets.DEFAULT_SUBNET_ID }}
         DEMO_ACCOUNT_ID: ${{ secrets.DEMO_ACCOUNT_ID }}
         AWS_REGION: ${{ secrets.AWS_REGION }}
-        SOURCE_AMI: ${{ secrets.SOURCE_AMI }}
       run: packer build -var="artifact_path=artifact" webapp.pkr.hcl
 
     - name: Clean up
