@@ -4,14 +4,10 @@ After=network.target
 
 [Service]
 Environment=NODE_ENV=production
-Environment=DB_HOST=${db_host}
-Environment=DB_PORT=${db_port}
-Environment=DB_NAME=${db_name}
-Environment=DB_USER=${db_username}
-Environment=DB_PASSWORD=${db_password}
 Type=simple
 User=csye6225
 WorkingDirectory=/opt/webapp
+EnvironmentFile=/opt/webapp/.env
 ExecStart=/usr/bin/node /opt/webapp/src/app.js
 Restart=on-failure
 RestartSec=10
