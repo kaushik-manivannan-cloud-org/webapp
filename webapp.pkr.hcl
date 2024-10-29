@@ -116,6 +116,10 @@ build {
   }
 
   provisioner "shell" {
+    script = "scripts/install_cloudwatch_agent.sh"
+  }
+
+  provisioner "shell" {
     script = "scripts/setup_application.sh"
     environment_vars = [
       "APP_NAME=${var.app_name}"
