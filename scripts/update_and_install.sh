@@ -33,3 +33,10 @@ curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 
 # Install Node.js and npm packages
 sudo apt-get install -y nodejs
+
+# Install CollectD
+sudo apt-get install -y collectd
+
+# Start and enable services
+sudo systemctl start collectd
+sudo systemctl enable collectd
