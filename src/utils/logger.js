@@ -6,8 +6,15 @@ dotenv.config();
 
 const { combine, timestamp, errors, splat, json, simple, colorize, prettyPrint } = format;
 
-// Define log format
-const logFormat = combine(
+// Define different formats for production and development
+const productionFormat = combine(
+  timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  errors({ stack: true }),
+  splat(),
+  json()
+);
+
+const developmentFormat = combine(
   timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   errors({ stack: true }),
   splat(),
@@ -23,7 +30,7 @@ const logFilePath = process.env.NODE_ENV === 'production'
 // Create logger
 const logger = createLogger({
   level: process.env.LOG_LEVEL || 'info',
-  format: logFormat,
+  format: process.env.NODE_ENV === 'production' ? productionFormat : developmentFormat,
   transports: [
     // File transport
     new transports.File({
