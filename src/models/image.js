@@ -25,6 +25,7 @@ const Image = sequelize.define(
     user_id: {
       type: DataTypes.UUID,
       allowNull: false,
+      unique: true,
       references: {
         model: User,
         key: 'id',
