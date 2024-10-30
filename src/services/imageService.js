@@ -1,4 +1,6 @@
-import logger from "../utils/logger";
+import logger from '../utils/logger.js';
+import Image from '../models/image.js';
+import { deleteFromS3, uploadToS3 } from '../services/s3Service.js';
 
 export const addImage = async (file, userId) => {
   try {
