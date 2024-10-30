@@ -7,6 +7,8 @@ import { checkNoPayload } from '../middleware/checkNoPayload.js';
 import { createUserSchema, updateUserSchema } from '../schemas/userSchemas.js';
 import auth from '../middleware/auth.js';
 import checkAuth from '../middleware/checkAuth.js';
+import { uploadProfilePic, getProfilePic, deleteProfilePic } from '../controllers/imageController.js';
+import { handleFileUpload } from '../middleware/handleFileUpload.js';
 
 const router = express.Router();
 
@@ -46,5 +48,24 @@ router.route('/self')
     auth,
     updateUser
   )
+
+router.route('/self/pic')
+  .all(
+    methodNotAllowed(['GET', 'POST', 'DELETE']))
+  .get(
+    checkNoPayload,
+    auth,
+    getProfilePic
+  )
+  .post(
+    auth,
+    handleFileUpload,
+    uploadProfilePic
+  )
+  .delete(
+    checkNoPayload,
+    auth,
+    deleteProfilePic
+  );
 
 export default router;
