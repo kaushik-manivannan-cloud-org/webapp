@@ -1,6 +1,8 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 import logger from "../utils/logger.js";
+import statsd from "./metricsService.js";
+
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION });
 // Middleware to track timing
