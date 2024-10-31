@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import logger from '../utils/logger.js';
 import dotenv from 'dotenv';
+import statsd from '../services/metricsService.js';
 
 dotenv.config();
 
@@ -13,7 +14,22 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     dialect: 'postgres',
-    logging: msg => logger.debug(msg),
+    // Enable built-in query timing
+    benchmark: true,
+    logging: (msg, timing) => {
+      logger.debug(msg)
+
+      // Determine query type
+      const queryType = msg.trim().split(' ')[0].toLowerCase();
+      
+      // Track query timing
+      statsd.timing('database.query.duration', timing);
+      statsd.timing(`database.query.${queryType}.duration`, timing);
+      
+      // Track query counts
+      statsd.increment('database.query.count');
+      statsd.increment(`database.query.${queryType}.count`);
+    },
   }
 );
 
