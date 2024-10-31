@@ -29,7 +29,7 @@ const logFilePath = process.env.NODE_ENV === 'production'
 
 // Create logger
 const logger = createLogger({
-  level: process.env.LOG_LEVEL || 'info',
+  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
   format: process.env.NODE_ENV === 'production' ? productionFormat : developmentFormat,
   transports: [
     // File transport
