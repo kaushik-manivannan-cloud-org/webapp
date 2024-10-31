@@ -19,7 +19,7 @@ export const addImage = async (file, userId) => {
       file_name: file.originalname,
       url: s3Key,
       user_id: userId,
-      upload_date: new Date().toISOString().split('T')[0],
+      upload_date: new Date(),
     });
 
     logger.info('Profile Image uploaded successfully', { userId, imageId: image.id });
