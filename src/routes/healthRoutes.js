@@ -7,7 +7,7 @@ import { methodNotAllowed } from '../middleware/methodNotAllowed.js';
 const router = express.Router();
 
 // Collect metrics for each request
-app.use(metricsMiddleware);
+router.use(metricsMiddleware);
 
 router.route('/')
   .all(
