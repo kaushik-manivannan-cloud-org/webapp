@@ -3,6 +3,25 @@ import { v4 as uuidv4 } from "uuid";
 import logger from "../utils/logger.js";
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION });
+// Middleware to track timing
+s3Client.middlewareStack.add(
+  (next, context) => async (args) => {
+    const startTime = Date.now();
+    try {
+      const result = await next(args);
+      const duration = Date.now() - startTime;
+      statsd.timing('s3.operation.duration', duration);
+      return result;
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      statsd.timing('s3.operation.duration', duration);
+      throw error;
+    }
+  },
+  {
+    step: 'build'
+  }
+);
 
 export const uploadToS3 = async (file, userId) => {
   const fileExtension = file.originalname.split(".").pop().toLowerCase();
