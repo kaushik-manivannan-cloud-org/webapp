@@ -35,7 +35,7 @@ const logger = createLogger({
     // File transport
     new transports.File({
       filename: logFilePath,
-      level: 'debug',
+      level: level,
       handleExceptions: true
     })
   ]
