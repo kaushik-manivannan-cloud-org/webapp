@@ -19,7 +19,7 @@ const Image = sequelize.define(
       allowNull: false,
     },
     upload_date: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       defaultValue: DataTypes.NOW,
     },
     user_id: {
