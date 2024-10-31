@@ -5,6 +5,7 @@ import statsd from "./metricsService.js";
 
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION });
+
 // Middleware to track timing
 s3Client.middlewareStack.add(
   (next, context) => async (args) => {

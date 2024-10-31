@@ -7,7 +7,7 @@ export const metricsMiddleware = (req, res, next) => {
   const metricKey = `api.${method}.${route}`;
 
   // Count API calls
-  statsd.increment(`${metricKey}.count`, 1, { sampleRate: 1.0 });
+  statsd.increment(`${metricKey}.count`);
 
   // Time API calls
   // Record start time
