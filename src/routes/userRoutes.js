@@ -9,6 +9,7 @@ import auth from '../middleware/auth.js';
 import checkAuth from '../middleware/checkAuth.js';
 import { uploadProfilePic, getProfilePic, deleteProfilePic } from '../controllers/imageController.js';
 import { handleFileUpload } from '../middleware/handleFileUpload.js';
+import metricsMiddleware from '../middleware/metricsMiddleware.js';
 
 const router = express.Router();
 
