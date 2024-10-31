@@ -1,8 +1,9 @@
 import statsd from '../services/metricsService.js';
+import logger from '../utils/logger.js';
 
 export const metricsMiddleware = (req, res, next) => {
   // Clean route path for metric name (remove dynamic parameters)
-  const route = req.route?.path?.replace(/:/g, '')?.replace(/\//g, '_') || 'unknown';
+  const route = req.originalUrl.substring(1).replace(/:/g, '').replace(/\//g, '_').replace(/^_/, '') || 'unknown';
   const method = req.method.toLowerCase();
   const metricKey = `api.${method}.${route}`;
 
