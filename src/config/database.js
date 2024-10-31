@@ -18,17 +18,9 @@ const sequelize = new Sequelize(
     benchmark: true,
     logging: (msg, timing) => {
       logger.debug(msg)
-
-      // Determine query type
-      const queryType = msg.trim().split(' ')[0].toLowerCase();
       
       // Track query timing
       statsd.timing('database.query.duration', timing);
-      statsd.timing(`database.query.${queryType}.duration`, timing);
-      
-      // Track query counts
-      statsd.increment('database.query.count');
-      statsd.increment(`database.query.${queryType}.count`);
     },
   }
 );
