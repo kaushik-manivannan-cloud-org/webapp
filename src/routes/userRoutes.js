@@ -5,6 +5,7 @@ import { createUser, getUser, updateUser } from '../controllers/userController.j
 import { validatePayload } from '../middleware/validatePayload.js';
 import { checkNoPayload } from '../middleware/checkNoPayload.js';
 import { createUserSchema, updateUserSchema } from '../schemas/userSchemas.js';
+import { createImageSchema } from '../schemas/imageSchemas.js';
 import auth from '../middleware/auth.js';
 import checkAuth from '../middleware/checkAuth.js';
 import { uploadProfilePic, getProfilePic, deleteProfilePic } from '../controllers/imageController.js';
@@ -63,6 +64,7 @@ router.route('/self/pic')
   )
   .post(
     auth,
+    validatePayload(createImageSchema),
     handleFileUpload,
     uploadProfilePic
   )
