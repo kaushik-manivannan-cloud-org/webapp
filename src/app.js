@@ -5,7 +5,6 @@ import { pageNotFound } from './middleware/pageNotFound.js';
 import noCache from './middleware/noCache.js';
 import initDatabase from './config/initDatabase.js';
 import dotenv from 'dotenv';
-import metricsMiddleware from './middleware/metricsMiddleware.js';
 
 dotenv.config();
 
@@ -18,7 +17,6 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(noCache); // Prevent response caching
-app.use(metricsMiddleware); // Collect metrics for each request
 
 // Register application routes
 registerRoutes(app);

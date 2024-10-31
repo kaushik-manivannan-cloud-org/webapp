@@ -12,6 +12,9 @@ import { handleFileUpload } from '../middleware/handleFileUpload.js';
 
 const router = express.Router();
 
+// Collect metrics for each request
+app.use(metricsMiddleware);
+
 router.route('/')
   .post(
     (req, res, next) => {
