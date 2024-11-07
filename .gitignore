@@ -240,4 +240,18 @@ output-*/
 .history
 .ionide
 
+### JMeter ###
+# JMeter common ignore files
+# http://jmeter.apache.org/
+
+# Ignore Summary/Aggregrate reports
+*.jtl
+/report
+/reports
+/test-output
+/jmeter-results
+
+# Ignore customized user.properties
+user.properties
+
 # End of https://www.toptal.com/developers/gitignore/api/node,git,visualstudiocode,macos,database,packer
