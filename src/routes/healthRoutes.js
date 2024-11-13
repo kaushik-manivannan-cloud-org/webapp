@@ -4,6 +4,7 @@ import { checkHealth } from '../controllers/healthController.js';
 import { checkNoPayload } from '../middleware/checkNoPayload.js';
 import { methodNotAllowed } from '../middleware/methodNotAllowed.js';
 import metricsMiddleware from '../middleware/metricsMiddleware.js';
+import { checkQueryParams } from '../middleware/checkQueryParams.js';
 
 const router = express.Router();
 
@@ -16,6 +17,7 @@ router.route('/')
   )
   .get(
     checkNoPayload,
+    checkQueryParams,
     (req, res, next) => {
     logger.info("Health check request received");
     next();

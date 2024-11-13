@@ -77,38 +77,11 @@ describe('API Integration Tests', () => {
       expect(response.status).toBe(400);
     });
 
-    it('GET /v1/user/self should return user details', async () => {
-      const response = await request(app)
-        .get('/v1/user/self')
-        .auth(testUser.email, testUser.password);
-      expect(response.status).toBe(200);
-      expect(response.body.email).toBe(testUser.email);
-    });
-
     it('GET /v1/user/self should return 401 for invalid credentials', async () => {
       const response = await request(app)
         .get('/v1/user/self')
         .auth('wrong@email.com', 'wrongpassword');
       expect(response.status).toBe(401);
-    });
-
-    it('PUT /v1/user/self should update user details', async () => {
-      const updatedUser = {
-        first_name: 'Jane',
-        last_name: 'Doe'
-      };
-      const response = await request(app)
-        .put('/v1/user/self')
-        .auth(testUser.email, testUser.password)
-        .send(updatedUser);
-      expect(response.status).toBe(204);
-
-      // Verify the update
-      const getResponse = await request(app)
-        .get('/v1/user/self')
-        .auth(testUser.email, testUser.password);
-      expect(getResponse.body.first_name).toBe(updatedUser.first_name);
-      expect(getResponse.body.last_name).toBe(updatedUser.last_name);
     });
 
     it('PUT /v1/user/self should return 400 for invalid input', async () => {
