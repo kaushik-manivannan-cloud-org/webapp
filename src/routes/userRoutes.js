@@ -10,6 +10,7 @@ import checkAuth from '../middleware/checkAuth.js';
 import { uploadProfilePic, getProfilePic, deleteProfilePic } from '../controllers/imageController.js';
 import { handleFileUpload } from '../middleware/handleFileUpload.js';
 import metricsMiddleware from '../middleware/metricsMiddleware.js';
+import { checkVerification } from '../middleware/checkVerification.js';
 import { checkQueryParams } from '../middleware/checkQueryParams.js';
 
 const router = express.Router();
@@ -43,6 +44,7 @@ router.route('/self')
     checkNoPayload,
     checkQueryParams,
     auth,
+    checkVerification,
     getUser
   )
   .put(
@@ -52,6 +54,7 @@ router.route('/self')
       },
     validatePayload(updateUserSchema),
     auth,
+    checkVerification,
     updateUser
   )
 
@@ -62,10 +65,12 @@ router.route('/self/pic')
     checkNoPayload,
     checkQueryParams,
     auth,
+    checkVerification,
     getProfilePic
   )
   .post(
     auth,
+    checkVerification,
     handleFileUpload,
     uploadProfilePic
   )
@@ -73,6 +78,7 @@ router.route('/self/pic')
     checkNoPayload,
     checkQueryParams,
     auth,
+    checkVerification,
     deleteProfilePic
   );
 
