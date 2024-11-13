@@ -2,6 +2,7 @@ import express from 'express';
 import logger from '../utils/logger.js';
 import { methodNotAllowed } from '../middleware/methodNotAllowed.js';
 import { createUser, getUser, updateUser } from '../controllers/userController.js';
+import { verifyEmail } from '../controllers/verificationController.js';
 import { validatePayload } from '../middleware/validatePayload.js';
 import { checkNoPayload } from '../middleware/checkNoPayload.js';
 import { createUserSchema, updateUserSchema } from '../schemas/userSchemas.js';
@@ -80,6 +81,19 @@ router.route('/self/pic')
     auth,
     checkVerification,
     deleteProfilePic
+  );
+
+router.route('/verify')
+  .all(
+    methodNotAllowed(['GET'])
+  )
+  .get(
+    (req, res, next) => {
+      logger.info("Email verification request received");
+      next();
+    },
+    checkNoPayload,
+    verifyEmail
   );
 
 export default router;
