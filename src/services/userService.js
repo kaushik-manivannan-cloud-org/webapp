@@ -1,17 +1,52 @@
 import User from '../models/user.js';
 import logger from '../utils/logger.js';
-import bcrypt from 'bcrypt';
+import { generateVerificationToken } from '../utils/verificationUtils.js';
+import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
+
+const sns = new SNSClient({ 
+  region: process.env.AWS_REGION
+});
 
 export const createUser = async (userData) => {
   try {
     const { first_name, last_name, email, password } = userData;
+
+    // Generate verification token
+    const { token, expiry } = generateVerificationToken();
+
+    // Create user with verification data
     const user = await User.create({
       first_name,
       last_name,
       email,
-      password
+      password,
+      verification_token: token,
+      token_expiry: expiry
     });
+
     logger.info("User created successfully", { userId: user.id });
+
+    // Prepare message for SNS
+    const message = {
+      email: user.email,
+      first_name: user.first_name,
+      verification_token: token
+    };
+
+    // Publish message to SNS Topic
+    const publishCommand = new PublishCommand({
+      TopicArn: process.env.SNS_TOPIC_ARN,
+      Message: JSON.stringify(message)
+    });
+
+    try {
+      await sns.send(publishCommand);
+    } catch (snsError) {
+      logger.error('Failed to send SNS message:', snsError);
+    }
+    
+    logger.info("Verification notification sent to SNS", { userId: user.id });
+
     return user;
   } catch (error) {
     throw error;
