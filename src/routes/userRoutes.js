@@ -10,6 +10,7 @@ import checkAuth from '../middleware/checkAuth.js';
 import { uploadProfilePic, getProfilePic, deleteProfilePic } from '../controllers/imageController.js';
 import { handleFileUpload } from '../middleware/handleFileUpload.js';
 import metricsMiddleware from '../middleware/metricsMiddleware.js';
+import { checkQueryParams } from '../middleware/checkQueryParams.js';
 
 const router = express.Router();
 
@@ -40,6 +41,7 @@ router.route('/self')
       next();
     },
     checkNoPayload,
+    checkQueryParams,
     auth,
     getUser
   )
@@ -58,6 +60,7 @@ router.route('/self/pic')
     methodNotAllowed(['GET', 'POST', 'DELETE']))
   .get(
     checkNoPayload,
+    checkQueryParams,
     auth,
     getProfilePic
   )
@@ -68,6 +71,7 @@ router.route('/self/pic')
   )
   .delete(
     checkNoPayload,
+    checkQueryParams,
     auth,
     deleteProfilePic
   );
