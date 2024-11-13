@@ -51,6 +51,18 @@ const User = sequelize.define(
           msg: "Password must contain atleast 8 characters with atleast one uppercase, one lowercase, one number, and one special character."
         }
       }
+    },
+    verified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    verification_token: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    token_expiry: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
   },
   {
