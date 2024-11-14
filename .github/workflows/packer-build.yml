@@ -145,9 +145,9 @@ jobs:
     - name: Create new Launch Template version
       id: launch_template
       run: |
-        TEMPLATE_ID=$(aws ec2 describe-launch-templates --filters "Name=tag:Name,Values=csye6225_asg" --query 'LaunchTemplates[0].LaunchTemplateId' --output text)
+        TEMPLATE_ID=$(aws ec2 describe-launch-templates --filters "Name=launch-template-name,Values=csye6225_asg" --query 'LaunchTemplates[0].LaunchTemplateId' --output text)
         
-        LATEST_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id $TEMPLATE_ID --query 'LaunchTemplateVersions[0].VersionNumber' --output text)
+        LATEST_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id $TEMPLATE_ID --query 'sort_by(LaunchTemplateVersions, &VersionNumber)[-1].VersionNumber' --output text)
         
         NEW_VERSION=$(aws ec2 create-launch-template-version \
           --launch-template-id $TEMPLATE_ID \
