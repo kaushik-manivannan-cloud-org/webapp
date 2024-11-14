@@ -79,16 +79,27 @@ jobs:
     needs: create_artifact
     name: Build Packer Image
     runs-on: ubuntu-latest
+    outputs:
+      ami_id: ${{ steps.packer_build.outputs.ami_id }}
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Configure AWS credentials
+    - name: Configure AWS credentials for Dev
+      if: vars.AWS_PROFILE == 'dev'
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Configure AWS credentials for Demo
+      if: vars.AWS_PROFILE == 'demo'
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.DEMO_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.DEMO_AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
         
     - name: Setup Packer
@@ -109,8 +120,84 @@ jobs:
         SUBNET_ID: ${{ secrets.DEFAULT_SUBNET_ID }}
         DEMO_ACCOUNT_ID: ${{ secrets.DEMO_ACCOUNT_ID }}
         AWS_REGION: ${{ secrets.AWS_REGION }}
-      run: packer build -var="artifact_path=artifact" webapp.pkr.hcl
+      run: |
+        packer build -var="artifact_path=artifact" webapp.pkr.hcl
+        AMI_ID=$(aws ec2 describe-images --filters "Name=name,Values=csye6225-webapp-*" --query 'sort_by(Images, &CreationDate)[-1].ImageId' --output text)
+        echo "ami_id=${AMI_ID}" >> "$GITHUB_OUTPUT"
 
     - name: Clean up
       if: always()
       run: rm -rf artifact
+  
+  update_asg:
+    needs: packer_build
+    name: Update Auto Scaling Group
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Configure AWS credentials for Dev
+      if: vars.AWS_PROFILE == 'dev'
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Configure AWS credentials for Demo
+      if: vars.AWS_PROFILE == 'demo'
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.DEMO_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.DEMO_AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Create new Launch Template version
+      id: launch_template
+      run: |
+        TEMPLATE_ID=$(aws ec2 describe-launch-templates --filters "Name=tag:Name,Values=csye6225_asg" --query 'LaunchTemplates[0].LaunchTemplateId' --output text)
+        
+        LATEST_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id $TEMPLATE_ID --query 'LaunchTemplateVersions[0].VersionNumber' --output text)
+        
+        NEW_VERSION=$(aws ec2 create-launch-template-version \
+          --launch-template-id $TEMPLATE_ID \
+          --source-version $LATEST_VERSION \
+          --launch-template-data "{\"ImageId\":\"${{ needs.packer_build.outputs.ami_id }}\"}" \
+          --query 'LaunchTemplateVersion.VersionNumber' \
+          --output text)
+        
+        echo "template_id=${TEMPLATE_ID}" >> "$GITHUB_OUTPUT"
+        echo "version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+
+    - name: Start ASG Instance Refresh
+      id: refresh
+      run: |
+        ASG_NAME="${{ vars.AWS_PROFILE }}-app-asg"
+        REFRESH_ID=$(aws autoscaling start-instance-refresh \
+          --auto-scaling-group-name $ASG_NAME \
+          --preferences "MinHealthyPercentage=90" \
+          --query 'InstanceRefreshId' \
+          --output text)
+        
+        echo "refresh_id=${REFRESH_ID}" >> "$GITHUB_OUTPUT"
+        
+        while true; do
+          STATUS=$(aws autoscaling describe-instance-refreshes \
+            --auto-scaling-group-name $ASG_NAME \
+            --instance-refresh-ids $REFRESH_ID \
+            --query 'InstanceRefreshes[0].Status' \
+            --output text)
+          
+          if [ "$STATUS" = "Successful" ]; then
+            echo "Instance refresh completed successfully"
+            exit 0
+          elif [ "$STATUS" = "Failed" ]; then
+            echo "Instance refresh failed"
+            exit 1
+          elif [ "$STATUS" = "Cancelled" ]; then
+            echo "Instance refresh was cancelled"
+            exit 1
+          fi
+          
+          echo "Instance refresh status: $STATUS. Waiting..."
+          sleep 30
+        done
