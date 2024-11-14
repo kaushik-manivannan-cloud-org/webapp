@@ -113,6 +113,10 @@ jobs:
         AWS_REGION: ${{ secrets.AWS_REGION }}
       run: |
         packer build -var="artifact_path=artifact" webapp.pkr.hcl
+
+    - name: Get Latest AMI ID
+      id: get_ami
+      run: |
         AMI_ID=$(aws ec2 describe-images --filters "Name=name,Values=csye6225-webapp-*" --query 'sort_by(Images, &CreationDate)[-1].ImageId' --output text)
         echo "ami_id=${AMI_ID}" >> "$GITHUB_OUTPUT"
 
