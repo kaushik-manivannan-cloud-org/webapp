@@ -80,7 +80,7 @@ jobs:
     name: Build Packer Image
     runs-on: ubuntu-latest
     outputs:
-      ami_id: ${{ steps.packer_build.outputs.ami_id }}
+      ami_id: ${{ steps.get_ami.outputs.ami_id }}
 
     steps:
     - name: Checkout code
