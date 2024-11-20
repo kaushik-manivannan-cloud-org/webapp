@@ -21,6 +21,15 @@ export const verifyUser = async (token) => {
       throw new Error('Invalid or expired token');
     }
 
+    // Check if user is already verified
+    if (user.verified) {
+      logger.warn('Already verified user attempted verification again', { 
+        userId: user.id,
+        email: user.email 
+      });
+      throw new Error('User already verified');
+    }
+
     await user.update({
       verified: true,
       verification_token: null,
