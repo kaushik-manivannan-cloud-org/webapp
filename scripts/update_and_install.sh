@@ -34,6 +34,9 @@ curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 # Install Node.js and npm packages
 sudo apt-get install -y nodejs
 
+# Install jq for JSON parsing
+sudo apt-get install -y jq
+
 # Install CollectD
 sudo apt-get install -y collectd
 
