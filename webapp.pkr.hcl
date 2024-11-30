@@ -69,7 +69,7 @@ source "amazon-ebs" "ubuntu" {
 
   aws_polling {
     delay_seconds = 10
-    max_attempts  = 50
+    max_attempts  = 100
   }
 
   instance_type = var.instance_type
